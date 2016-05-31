@@ -164,7 +164,7 @@ The type system in DesignScript is dynamic and object-oriented. DesignScript sup
   </tr>
   <tr>
     <td>integer</td>
-    <td>-263 - 263 - 1</td>
+    <td>-2e63 - 2e63 - 1</td>
     <td>0</td>
   </tr>
   <tr>
