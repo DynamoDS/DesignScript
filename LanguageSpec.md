@@ -2,9 +2,9 @@
 
 ## 1. Introduction
 
-This is the documentation for DesignScript programming language. DesignScript is dynamic, garbage-collected and associative language, and provides strong support for visual programming environment. 
+This is the specification for DesignScript programming language. DesignScript is dynamic, garbage-collected and associative language, and provides strong support for visual programming environment. 
 
-The grammar in this specification is in Extended Backus-Naur Form (EBNF)  (NOTE:  https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form). 
+The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
 This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The later is implementation dependent. 
 
