@@ -1786,7 +1786,7 @@ Returns average value of all elements in the specified list.
 
 ##### `Break()`
 
-	Notifies debugger to break at the point.
+Notifies debugger to break at the point.
 
 ##### `Concat:var[]..[](list1: var[]..[], list2: var[]..[])`
 
@@ -1802,7 +1802,7 @@ Checks if the specified element is in the specified list.
 
 ##### `ContainsKey:bool(list: var[]..[], key: var)`
 
-	Checks if the specified key is present in the specified dictionary.
+Checks if the specified key is present in the specified dictionary.
 
 ##### `Count:int(list: var[]..[])`
 
@@ -1822,7 +1822,7 @@ Determines whether two object instances are equal.
 
 ##### `Evaluate:var[]..[](fptr: fptr, params: var[]..[], unpack: bool)`
 
-	For internal use. Evaluates a function pointer with specified params. 
+For internal use. Evaluates a function pointer with specified params. 
 
 ##### `Flatten:var[](list:var[]..[])`
 
@@ -1834,11 +1834,11 @@ Returns elapsed milliseconds in the virtual machine
 
 ##### `GetKeys:var[]..[](list: var[]..[])`
 
-	Gets all keys from the specified dictionary.
+Gets all keys from the specified dictionary.
 
 ##### `GetValues:var[]..[](list: var[]..[])`
 
-	Gets all values stored in the specified dictionary and for a simple list it returns all elements.
+Gets all values stored in the specified dictionary and for a simple list it returns all elements.
 
 ##### `IndexOf:int(list: var[]..[], element: var[]..[])`
 
@@ -1858,7 +1858,7 @@ Checks if each of rows in multidimensional  list has the same number of elements
 
 ##### `ImportFromCSV:double[][](filePath: string )`
 
-	Imports data from a text file containing comma separated values into two-dimensional list.
+Imports data from a text file containing comma separated values into two-dimensional list.
 
 ##### `ImportFromCSV:double[][](filePath: string, transpose:bool)`
 
@@ -1876,23 +1876,23 @@ Checks if the list has a uniform depth.
 
 ##### `Map:double(rangeMin: double, rangeMax: double, inputValue: double)`
 
-	Maps a value into an input range.
+Maps a value into an input range.
 
 ##### `MapTo:double(rangeMin: double, rangeMax: double, inputValue: double, targetRangeMin: double, targetRangeMax:double)`
 
-	Maps a value from one range to another range.
+Maps a value from one range to another range.
 
 ##### `NormalizeDepth:var[]..[](list: var[]..[])`
 
-	Returns a list with uniform depth as specified by the input depth.
+Returns a list with uniform depth as specified by the input depth.
 
 ##### `NormalizeDepth:var[]..[](list: var[]..[], rank: var)`
 
-	Return multidimensional list according to the rank given.
+Return multidimensional list according to the rank given.
 
 ##### `Print(msg: var)`
 
-	Print msg to the console. 
+Print msg to the console. 
 
 ##### `Rank(list: var[]..[])`
 
@@ -1900,31 +1900,31 @@ Counts the maximal rank of the specified list.
 
 ##### `Remove:var(list: var[]..[], index: int)`
 
-	Removes element at the specified index of the list.
+Removes element at the specified index of the list.
 
 ##### `RemoveDuplicates:var[]..[](list: var[]..[])`
 
-	Removes duplicate elements in the specified list.
+Removes duplicate elements in the specified list.
 
 ##### `RemoveNulls:var[]..[](list: var[]..[])`
 
-	Removes null elements from the specified list.
+Removes null elements from the specified list.
 
 ##### `RemoveIfNot:var[]..[](list: var[]..[], type:string)`
 
-	Removes the members of the list which are not members of the specified type.
+Removes the members of the list which are not members of the specified type.
 
 ##### `RemoveKey:bool(list:var[]..[], key: var)`
 
-	Returns true if the specified key is removed from the specified list; otherwise returns false.
+Returns true if the specified key is removed from the specified list; otherwise returns false.
 
 ##### `Reorder:var[](list: var[], indice:var[])`
 
-	Reorders the list using the specified indices.
+Reorders the list using the specified indices.
 
 ##### `Reverse:var[]..[](list: var[]..[])`
 
-	Reverses the specified list. 
+Reverses the specified list. 
 
 ##### `SetDifference:var[](list1: var[], list2: var[])`
 
@@ -1936,15 +1936,15 @@ Produces the set intersection of two lists.
 
 ##### `SetUnion:var[](list1: var[], list2: var[])`
 
-	Produces the set union of two sequences by using the default equality comparer.
+Produces the set union of two sequences by using the default equality comparer.
 
 ##### `Sleep(x: int)`
 
-	Put the virtual machine to sleep for x milliseconds. 
+Put the virtual machine to sleep for x milliseconds. 
 
 ##### `SomeFalse:bool(list: var[]..[])`
 
-	Returns true if any element in the list is false
+Returns true if any element in the list is false
 
 ##### `SomeNulls:bool(list: var[]..[])`
 
@@ -1952,49 +1952,47 @@ Returns true if any element in the list is null.
 
 ##### `SomeTrue:bool(list: var[]..[])`
 
-	Returns true if any element in the list is true.
+Returns true if any element in the list is true.
 
 ##### `Sort:int[](list: int[])`
 
-	Obsolete. 
+Obsolete. 
 
 ##### `SortIndexByValue:int[](list: double[])`
 
-	Sorts a specified list by values of its members in ascending order.
+Sorts a specified list by values of its members in ascending order.
 
 ##### `SortIndexByValue:int[](list: double[], ascending: bool)`
 
-	Sorts a specified list by values of its members in either descending or ascending order.
+Sorts a specified list by values of its members in either descending or ascending order.
 
 ##### `Sum:int(list: int[]..[])`
 
-	Returns the sum of all elements in the specified list.
+Returns the sum of all elements in the specified list.
 
 ##### `ToString:string(object: var[]..[])`
 
-	Obsolete. Use __ToStringFromObject()`or __ToStringFromArray()`instead. Returns object
-
-in string representation. 
+Obsolete. Use __ToStringFromObject()`or __ToStringFromArray()`instead. Returns object in string representation. 
 
 ##### `Transpose:var[]..[](list: var[]..[])`
 
-	Swaps rows and columns in a list of lists. If there are some rows that are shorter than others, 
+Swaps rows and columns in a list of lists. If there are some rows that are shorter than others, 
 
 null values are inserted as placeholders in the result list such that it is always rectangular.
 
 ##### `__GC()`
 
-	Force garbage collection. 
+Force garbage collection. 
 
 ##### `__ToStringFromObject:string(object: var)`
 
-	Returns object in string representation.
+Returns object in string representation.
 
 ##### `__ToStringFromArray:string(list: var[])`
 
-	Returns list in string representation.
+Returns list in string representation.
 
 ##### `__TryGetValueFromNestedDictionaries:var[]..[](list: var[]..[], key: var[]..[])`
 
-	Recursively iterate all dictionary elements in the specified list and returns values associated with the specified key.
+Recursively iterate all dictionary elements in the specified list and returns values associated with the specified key.
 
