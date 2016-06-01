@@ -1772,33 +1772,15 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments â€
 
 ## 11. Built-in functions
 
-##### `AllFalse:bool(list: var[]..[])`
+### Dictionaries
 
-Checks if all elements in the specified list are false.
+##### `Append:var[]..[](list: var[]..[], element: var[]..[])`
 
-##### `AllTrue:bool(list: var[]..[])`
-
-Checks if all elements in the specified list are true.
-
-##### `Average:double(list: int[]..[])`
-
-Returns average value of all elements in the specified list.
-
-##### `Break()`
-
-Notifies debugger to break at the point.
+Creates a new list with a new element inserted at the end
 
 ##### `Concat:var[]..[](list1: var[]..[], list2: var[]..[])`
 
 Concats list1 and list2 and returns a new list.
-
-##### `Contains:bool(list: var[]..[], element: var)`
-
-Checks if the specified element is in the specified list.
-
-##### `Contains:bool(list: var[]..[], element: var[]..[])`
-
-Checks if the specified element is in the specified list.
 
 ##### `ContainsKey:bool(list: var[]..[], key: var)`
 
@@ -1808,30 +1790,6 @@ Checks if the specified key is present in the specified dictionary.
 
 Returns the number of elements in the specified list.
 
-##### `CountTrue:int(list: var[]..[])`
-
-Returns the number of true values in the specified list.
-
-##### `CountFalse:int(list: var[]..[])`
-
-Returns the number of falsevalues in the specified list.
-
-##### `Equals:bool(objectA: var, objectB: var)`
-
-Determines whether two object instances are equal.
-
-##### `Evaluate:var[]..[](fptr: fptr, params: var[]..[], unpack: bool)`
-
-For internal use. Evaluates a function pointer with specified params. 
-
-##### `Flatten:var[](list:var[]..[])`
-
-Returns the flattened 1D list of the multi-dimensional input list.
-
-##### `GetElapsedTime:int()`
-
-Returns elapsed milliseconds in the virtual machine
-
 ##### `GetKeys:var[]..[](list: var[]..[])`
 
 Gets all keys from the specified dictionary.
@@ -1840,159 +1798,21 @@ Gets all keys from the specified dictionary.
 
 Gets all values stored in the specified dictionary and for a simple list it returns all elements.
 
-##### `IndexOf:int(list: var[]..[], element: var[]..[])`
-
-Returns the index of the member in the list.
-
-##### `Insert:var[]..[](list: var[]..[], element: var, index: int)`
-
-Inserts an element into a list at specified index.
-
 ##### `Insert:var[]..[](list: var[]..[], element: var[]..[], index: int)`
 
 Inserts an element into a list at specified index.
-
-##### `IsRectangular: bool(list: var[]..[])`
-
-Checks if each of rows in multidimensional  list has the same number of elements.
-
-##### `ImportFromCSV:double[][](filePath: string )`
-
-Imports data from a text file containing comma separated values into two-dimensional list.
-
-##### `ImportFromCSV:double[][](filePath: string, transpose:bool)`
-
-Imports data from a text file containing comma separated values into two-dimensional list and 
-
-also transpose the output list if specified.
-
-##### `IsHomogeneous: bool(list: var[]..[])`
-
-Checks if all the elements in the specified list are of the same type.
-
-##### `IsUniformDepth:bool(list: var[]..[])`
-
-Checks if the list has a uniform depth.
-
-##### `Map:double(rangeMin: double, rangeMax: double, inputValue: double)`
-
-Maps a value into an input range.
-
-##### `MapTo:double(rangeMin: double, rangeMax: double, inputValue: double, targetRangeMin: double, targetRangeMax:double)`
-
-Maps a value from one range to another range.
-
-##### `NormalizeDepth:var[]..[](list: var[]..[])`
-
-Returns a list with uniform depth as specified by the input depth.
-
-##### `NormalizeDepth:var[]..[](list: var[]..[], rank: var)`
-
-Return multidimensional list according to the rank given.
-
-##### `Print(msg: var)`
-
-Print msg to the console. 
-
-##### `Rank(list: var[]..[])`
-
-Counts the maximal rank of the specified list. 
 
 ##### `Remove:var(list: var[]..[], index: int)`
 
 Removes element at the specified index of the list.
 
-##### `RemoveDuplicates:var[]..[](list: var[]..[])`
+### Other
 
-Removes duplicate elements in the specified list.
+##### `Equals:bool(objectA: var, objectB: var)`
 
-##### `RemoveNulls:var[]..[](list: var[]..[])`
-
-Removes null elements from the specified list.
-
-##### `RemoveIfNot:var[]..[](list: var[]..[], type:string)`
-
-Removes the members of the list which are not members of the specified type.
-
-##### `RemoveKey:bool(list:var[]..[], key: var)`
-
-Returns true if the specified key is removed from the specified list; otherwise returns false.
-
-##### `Reorder:var[](list: var[], indice:var[])`
-
-Reorders the list using the specified indices.
-
-##### `Reverse:var[]..[](list: var[]..[])`
-
-Reverses the specified list. 
-
-##### `SetDifference:var[](list1: var[], list2: var[])`
-
-Returns objects that are included in list1 but not excluded in list2
-
-##### `SetIntersection:var[](list1: var[], list2: var[])`
-
-Produces the set intersection of two lists.
-
-##### `SetUnion:var[](list1: var[], list2: var[])`
-
-Produces the set union of two sequences by using the default equality comparer.
-
-##### `Sleep(x: int)`
-
-Put the virtual machine to sleep for x milliseconds. 
-
-##### `SomeFalse:bool(list: var[]..[])`
-
-Returns true if any element in the list is false
-
-##### `SomeNulls:bool(list: var[]..[])`
-
-Returns true if any element in the list is null.
-
-##### `SomeTrue:bool(list: var[]..[])`
-
-Returns true if any element in the list is true.
-
-##### `Sort:int[](list: int[])`
-
-Obsolete. 
-
-##### `SortIndexByValue:int[](list: double[])`
-
-Sorts a specified list by values of its members in ascending order.
-
-##### `SortIndexByValue:int[](list: double[], ascending: bool)`
-
-Sorts a specified list by values of its members in either descending or ascending order.
-
-##### `Sum:int(list: int[]..[])`
-
-Returns the sum of all elements in the specified list.
+Determines whether two object instances are equal.
 
 ##### `ToString:string(object: var[]..[])`
 
-Obsolete. Use __ToStringFromObject()`or __ToStringFromArray()`instead. Returns object in string representation. 
-
-##### `Transpose:var[]..[](list: var[]..[])`
-
-Swaps rows and columns in a list of lists. If there are some rows that are shorter than others, 
-
-null values are inserted as placeholders in the result list such that it is always rectangular.
-
-##### `__GC()`
-
-Force garbage collection. 
-
-##### `__ToStringFromObject:string(object: var)`
-
 Returns object in string representation.
-
-##### `__ToStringFromArray:string(list: var[])`
-
-Returns list in string representation.
-
-##### `__TryGetValueFromNestedDictionaries:var[]..[](list: var[]..[], key: var[]..[])`
-
-Recursively iterate all dictionary elements in the specified list and returns values associated with the specified key.
 
