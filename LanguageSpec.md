@@ -491,10 +491,6 @@ The search order of an identifier is
 
 * Innermost scope.
 
-* Each progressive outer scope, including class scope.
-
-* Classes that the current class extends.
-
 * The global scope.
 
 ## Declarations
