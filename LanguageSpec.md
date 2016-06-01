@@ -1,6 +1,6 @@
 # DesignScript Language Specification (Draft)
 
-## 1. Introduction
+## Introduction
 
 This is the specification for DesignScript programming language. DesignScript is dynamic, garbage-collected and associative language, and provides strong support for visual programming environment. 
 
@@ -8,9 +8,9 @@ The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
 This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The later is implementation dependent. 
 
-## 2. Lexical elements
+## Lexical elements
 
-### 1. Comments
+### Comments
 
 DesignScript supports two kinds of comments.
 
@@ -29,11 +29,11 @@ x = 1; // single line comment
 y = 2;
 ```
 
-### 2. Semicolons
+### Semicolons
 
 Semicolon ";" is used as a terminator of a statement. 
 
-### 3. Identifiers
+### Identifiers
 
 Identifiers in DesignScript name variables, types, functions and namespaces. 
 
@@ -59,7 +59,7 @@ Identifier =
 * Zero Width Non-Joiner
 * Zero Width Joiner
 
-### 4. Keywords
+### Keywords
 
 The following words are reserved as being a keywords
 
@@ -68,14 +68,14 @@ break, class, constructor, continue, def, else, elseif, extends, for, from, if, 
 ```
 
 
-### 5. Bool literal
+### Bool literal
 
 ```
 true, false
 ```
 
 
-### 6. Integer literal
+### Integer literal
 
 Integer literal represents an integer constant. It is in decimal base, or in hexadecimal base. 
 
@@ -100,7 +100,7 @@ Example:
 0XFF;  // 255
 ```
 
-### 7. Floating-point literal
+### Floating-point literal
 
 Floating-point literal represent a floating-point constant in decimal base.
 
@@ -123,7 +123,7 @@ Example:
 ```
 
 
-### 8. String literal
+### String literal
 
 String literal represents a string constant. It is obtained by putting character sequence between double quote ("). 
 
@@ -145,9 +145,9 @@ Example:
 “\”Hello\tDesignScript\nLanguage\””;
 ```
 
-## 3. Types
+## Types
 
-### 1. Primitive Types
+### Primitive Types
 
 The type system in DesignScript is dynamic and object-oriented. DesignScript supports following primitive types
 
@@ -192,7 +192,7 @@ The type system in DesignScript is dynamic and object-oriented. DesignScript sup
 
 The default value of all other types is "null". 
 
-### 2. User defined types
+### User defined types
 
 User defined types are supported through [class mechanism](#heading=h.ussn8fy27o8t) . Objects, instances of classes, may contain
 
@@ -203,9 +203,9 @@ User defined types are supported through [class mechanism](#heading=h.ussn8fy27o
 
 Only single inheritance is allowed in DesignScript.
 
-### 3. List
+### List
 
-#### 1. Rank
+#### Rank
 
 If a type has rank suffix, it declares a list. The number of "[]" specifies the number of rank. “[]..[]” specifies arbitrary rank. For example,
 
@@ -217,7 +217,7 @@ int[]..[] // an integer list with arbitrary rank
 
 The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [replication guide](#heading=h.f51u2x6ertfi) work in function dispatch.
 
-#### 2. Dynamic list
+#### Dynamic list
 
 The list in DesignScript is dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
@@ -227,7 +227,7 @@ x[5] = 4;      // x = {1, 2, 3, null, null, 4};
 ```
 
 
-#### 3. Use as a dictionary
+#### Use as a dictionary
 
 List in DesignScript is just a special case of dictionary whose keys are integers. When indexing a list, the type of key could be any type. For example:
 
@@ -240,11 +240,11 @@ x[false] = 5;
 
 When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys. 
 
-### 4. Type conversion rules(TBD)
+### Type conversion rules(TBD)
 
 Following implicit type conversion rules specify the result of converting one type to another:
 
-#### 1. Non-list case
+#### Non-list case
 
 "yes" means convertible, “no” means no convertible. 
 
@@ -315,7 +315,7 @@ Following implicit type conversion rules specify the result of converting one ty
 </table>
 
 
-#### 2. Array promotion
+#### Array promotion
 
 <table>
   <tr>
@@ -383,7 +383,7 @@ Following implicit type conversion rules specify the result of converting one ty
    </tr>
 </table>
 
-#### 3. Array demotion
+#### Array demotion
 
 <table>
   <tr>
@@ -451,17 +451,17 @@ Following implicit type conversion rules specify the result of converting one ty
 	</tr>
 </table>
 
-## 4. Variables
+## Variables
 
-### 1. Dynamic
+### Dynamic
 
 Variables in DesignScript are dynamic. It is free to assign any kinds of objects to any variable, and the type of a variable is totally run-time dependent. 
 
-### 2. List Immutability
+### List Immutability
 
 Lists in DesignScript are immutable. That is, when copying a list from one variable to the other variable, it is deep copy operation: all elements in the list are copied as well. 
 
-### 3. Scope
+### Scope
 
 DesignScript uses block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope), and blocks are either functions or language blocks.Because of associativity, a variable could be used before it is defined, the DesignScript virtual machine will ensure to propagate the value update to all its references. 
 
@@ -485,7 +485,7 @@ def foo(x) {
 }
 ```
 
-### 4. Scope resolution
+### Scope resolution
 
 The search order of an identifier is
 
@@ -497,9 +497,9 @@ The search order of an identifier is
 
 * The global scope.
 
-## 5. Declarations
+## Declarations
 
-### 1. Function declaration
+### Function declaration
 
 ```
 FunctionDeclaration =
@@ -530,7 +530,7 @@ def foo:var(x:int[]..[], y:int = 3)
 }
 ```
 
-#### 2. Default parameters
+#### Default parameters
 
 Function declaration allows to have default parameter, but with one restriction: all default parameters should be the rightmost parameters. 
 
@@ -550,7 +550,7 @@ def bar(x = 1, y, z = 2)
 }
 ```
 
-#### 3. Function overloads
+#### Function overloads
 
 DesignScript supports function overload, i.e., functions with a same name but with different types/number of parameters, but which function will be called finally is totally run-time dependent,, especially if [replication ](#heading=h.f51u2x6ertfi)happens. DesignScript virtual machine will try to find out the best match one based on the type of arguments and the type of all parameters of all function candidates. 
 
@@ -574,7 +574,7 @@ r1 = foo(2, 3);
 r2 = foo(2.1, 3.2);
 ```
 
-### 4. Class declaration
+### Class declaration
 
 ```
 ClassDeclaration =
@@ -598,7 +598,7 @@ AccessMmodifier = “public” | “protected” | “private”
 
 Class should be defined in the top [associative language block](#heading=h.4hx9oahduirh).
 
-#### 1. Inheritance
+#### Inheritance
 
 DesignScript only supports single inheritance. That is, only one base class is allowed. 
 
@@ -617,7 +617,7 @@ class Point3D: extends Point2D
 ```
 
 
-#### 2. Constructors
+#### Constructors
 
 Although it is not forced, but it is suggested that the name of constructor starts with "By…" to indicate how to create the object. For example, the constructor of creating a Point may be “ByCoordinates()”. 
 
@@ -657,7 +657,7 @@ p2 = Point3D();
 ```
 
 
-#### 3. Properties
+#### Properties
 
 Variables defined in class are properties. The initialization of properties could either be in constructor or in definition. 
 
@@ -705,11 +705,11 @@ x = p1.x;
 p1.y = 2;
 ```
 
-#### 4. Member functions
+#### Member functions
 
 The definition of member functions is the same as normal function definition. All properties are accessible in member functions. 
 
-#### 5. Access modifiers
+#### Access modifiers
 
 The access restriction to class properties and member functions are specified by labels public, protected and private. If no access specifier is specified for members, by default they are public.
 
@@ -771,7 +771,7 @@ p2 = b.prop2;
 p3 = b.prop3;
 ```
 
-#### 6. Static members
+#### Static members
 
 Static properties and static member functions are defined on class level. That is, the access expression is in the form of "ClassName.X" or "ClassName.Y()'
 
@@ -834,7 +834,7 @@ r = f.bar();
 r = Foo.bar();
 ```
 
-#### 7. _Dispose() method
+#### _Dispose() method
 
 If a public _Dispose() method is defined in the class, when the instance is garbage collected, this method will be called, so _Dispose() could be used to release resources acquired by instance. Typically, this method will be generated automatically for FFI classes. 
 
@@ -866,7 +866,7 @@ r = Disposable.Flag;
 ```
 
 
-### 8. Function resolution
+### Function resolution
 
 The order of resolve a function is:
 
@@ -882,9 +882,9 @@ The order of resolve a function is:
 
 As function could be overloaded, the result of function resolution will return a list of function candidates. The virtual machine will find out the best match depending on the type of arguments, the types of parameters and [replication guide](#heading=h.3rlgnr1iwxqe). 
 
-## 6. Expressions
+## Expressions
 
-### 1. List creation expression
+### List creation expression
 
 ```
 ListCreationExpression = "{“ [Expression { “," Expression } ] “}”
@@ -896,7 +896,7 @@ List creation expression is to create a list. Example:
 x = {{1, 2, 3}, null, {true, false}, "DesignScript"};
 ```
 
-### 2. Range expression
+### Range expression
 
 Range expression is a convenient way to generate a list.
 
@@ -943,7 +943,7 @@ Range expression  is handled specially for strings with single character. For ex
 ```
 
 
-### 3. Inline conditional expression
+### Inline conditional expression
 
 ```
 InlineConditionalExpression = Expression ? Expression : Expression;
@@ -969,7 +969,7 @@ r = x ? y : z;  // replicates, r = {“foo”, “dang”, “qux”}
 ```
 
 
-### 4. Member access expression
+### Member access expression
 
 Member access expression is of the form
 
@@ -980,7 +980,7 @@ x.y.z
 
 "y" and “z” could be properties, or member functions. If they are not accessible, null will be returned. 
 
-### 5. List access expression
+### List access expression
 
 List access expression is of the form
 
@@ -1004,7 +1004,7 @@ a[0][1] = 3;   // “a” will be promoted, a = {{1, 3}, 2, null, 3} now
 ```
 
 
-### 6. Operators
+### Operators
 
 The following operators are supported in DesignScript:
 
@@ -1077,7 +1077,7 @@ Precedence</td>
 </table>
 
 
-### 7. Arithmetic operators
+### Arithmetic operators
 
 ```
 +, -, *, /, %
@@ -1093,14 +1093,14 @@ s = s1 + s2;  // “DesignScript”
 ```
 
 
-### 8. Comparison operators
+### Comparison operators
 
 ```
 >, >=, <, <=, ==, !=
 ```
 
 
-### 9. Logical operators
+### Logical operators
 
 ```
 &&, ||, !
@@ -1109,9 +1109,9 @@ s = s1 + s2;  // “DesignScript”
 
 The operand should be bool type; otherwise type conversion will be incurred.
 
-## 7. Statements
+## Statements
 
-### 1. Empty statements
+### Empty statements
 
 Empty statement is 
 
@@ -1120,7 +1120,7 @@ Empty statement is
 ```
 
 
-### 2. Import statements
+### Import statements
 
 Import statements import other DesignScript source file or C# assembly into current namespace. 
 
@@ -1148,7 +1148,7 @@ import ("/home/dev/libraries/foo.ds");
 import (Point from “Geometry.dll”);
 ```
 
-### 3. Expression statements
+### Expression statements
 
 ```
 ExpressionStatement = Expression ";"
@@ -1156,7 +1156,7 @@ ExpressionStatement = Expression ";"
 
 Expression statements are expressions without assignment. 
 
-### 4. Assignments
+### Assignments
 
 ```
 Assignment = Expression "=" ((Expression “;”) | LanguageBlock)
@@ -1165,7 +1165,7 @@ Assignment = Expression "=" ((Expression “;”) | LanguageBlock)
 
 The left hand side of "=" should be assignable. Typically, it is [member access expression](#heading=h.rf6u7s9js69k) or [array access expression](#heading=h.7iw1e1npd4z) or variable. If the left hand side is a variable which hasn’t been defined before, the assignment statement will define this variable.
 
-### 5. Flow statements
+### Flow statements
 
 Flow statements change the execution flow of the program. A flow statement is one of the followings:
 
@@ -1175,7 +1175,7 @@ Flow statements change the execution flow of the program. A flow statement is on
 
 3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
 
-### 6. Return statements
+### Return statements
 
 ```
 ReturnStatement = "return" “=” Expression “;”
@@ -1184,7 +1184,7 @@ ReturnStatement = "return" “=” Expression “;”
 
 A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function. 
 
-### 7. Break statements
+### Break statements
 
 ```
 BreakStatement = "break" “;”
@@ -1193,7 +1193,7 @@ BreakStatement = "break" “;”
 
 A "break" statement terminates the execution of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop. 
 
-### 8. Continue statement
+### Continue statement
 
 ```
 ContinueStatement = "continue" “;”
@@ -1202,7 +1202,7 @@ ContinueStatement = "continue" “;”
 
 A "continue" statement begins the next iteration of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
 
-### 9. If statements
+### If statements
 
 "if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).  
 
@@ -1233,7 +1233,7 @@ else {
 ```
 
 
-### 10. While statements
+### While statements
 
 "while" statements repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
 
@@ -1256,7 +1256,7 @@ while (x < 10)
 ```
 
 
-### 11. For statements
+### For statements
 
 "for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe). 
 
@@ -1275,15 +1275,15 @@ for (x in 1..10)
 // sum == 55
 ```
 
-## 8. Language blocks
+## Language blocks
 
-### 1. Default associative language block
+### Default associative language block
 
 By default, all statements are in a default top [associative language block](#heading=h.4hx9oahduirh), so [associative update](#heading=h.1vv0i14ck6wu) is enabled by default. 
 
 Not like nested language block, there is no return statement in top language block: all statements will be executed sequentially to the last one.
 
-### 2. Nested associative language block
+### Nested associative language block
 
 It is also valid to explicitly define a nested associative language block in the top associative language block, in an imperative language block or in a function.
 
@@ -1317,7 +1317,7 @@ z = [Associative]
 }
 ```
 
-### 3. Imperative language block
+### Imperative language block
 
 Imperative language block provides a convenient way to use imperative semantics. Similar to nested associative language block, imperative language block executes all statements sequentially unless a statement is a [return statement](#heading=h.bhwa3rqti3pb) to return a value. Imperative language block can only be defined in the other associative language block, including the top associative language block.
 
@@ -1380,9 +1380,9 @@ def sum(x)
 ```
 
 
-## 9. Associative update
+## Associative update
 
-### 1. Associativity
+### Associativity
 
 Associativity is a feature in DesignScript that allows the propagation of change of a variable to all dependent statements in the program. The propagation of change happens at runtime and is handled by update mechanism in DesignScript virtual machine.
 
@@ -1427,7 +1427,7 @@ There are four key elements in associativity definition and update:
 
     * Functions
 
-### 2. Associativity establishment
+### Associativity establishment
 
 Assignment statement in associative language block establishes a relationship between the assigned entities and the entities used in the statement to compute it. Re-redefinition will remove previous associativity (if there is) and redefine associativity. 
 
@@ -1466,11 +1466,11 @@ An example in imperative language block
 
 The code is executed line by line, no re-computation will happen in imperative language block. After execution, "x" is 3 and “y” is 1. 
 
-### 3. Update by re-execution
+### Update by re-execution
 
 The change is propagated to all dependents recursively by re-executing all statements that establish associativity. 
 
-### 4. Dependents
+### Dependents
 
 A dependent could be a variable or a property. Code below shows the later case.
 
@@ -1495,9 +1495,9 @@ r = f.x;
 
 After "m" is updated to 42, assignment statement “f.x = m” will be re-executed to update property “x”. 
 
-### 5. Entities that could be depended on
+### Entities that could be depended on
 
-#### 1. Variables
+#### Variables
 
 The change of variable will trigger updates of its dependents. Variable could appears in
 
@@ -1531,7 +1531,7 @@ The code above will be executed as follow:
 
 It is also fine that variable appears in function parameter list, just as [the example in associativity establishment](#heading=h.bewf785unxtz) shows.
 
-#### 2. Function
+#### Function
 
 In the form of
 
@@ -1542,7 +1542,7 @@ x = f(...);
 
 The assignment establishes associativity between "x" and function “f()”. Any update of function body of any overloaded “f()” will cause the re-execution of this statement. Note this feature is only available when live runner is enabled (which is only available in visual programming environment). 
 
-#### 3. Properties
+#### Properties
 
 In the form of
 
@@ -1584,7 +1584,7 @@ b = Bar(3);    // update “b”
 
 Each update in the last three statement will re-execute statement "t = b.foo.x" to update the value of “t”. 
 
-### 4. Associativity scope
+### Associativity scope
 
 As the establishment of associativity and update are both at runtime, it is important to note that the associativity establishment and update should only apply to entities in the same scope; otherwise the result is undefined. If there already is an associativity, the associativity may be removed. 
 
@@ -1648,9 +1648,9 @@ There are four undefined cases:
 ```
 
 
-## 10. Replication and replication guides
+## Replication and replication guides
 
-### 1. Replication and replication guide
+### Replication and replication guide
 
 Replication is a way to express iteration in associative language block. It applies to a function call when the rank of input arguments exceeds the rank of parameters. In other words, a function may be called multiple times in replication, and the return value from each function call will be aggregated and returned as a list. 
 
@@ -1735,7 +1735,7 @@ Besides replication for explicit function call, replication and replication guid
 
 5. Member access expression. For example, xs.foo(ys) where xs and ys are lists. Replication guide could be applied to objects and arguments. If xs is a list, xs should be a homogeneous list, i.e., all elements in xs are of the same type. 
 
-### 2. Function dispatch rule for replication and replication guide
+### Function dispatch rule for replication and replication guide
 
 Using zip replication or cartesian replication totally depends on the specified replication guide, the types of input arguments and the types of parameters. Because the input argument could be a heterogenous list, the implementation will compute which replication combination will generate the shortest type conversion distance. 
 
@@ -1770,7 +1770,7 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments �
 
 5. Combine the replications generated on step 3 and step 4, based on the input arguments and the signature of candidate functions, choose the best matched function and best replication strategy. During the process, if the type of parameter and the type of argument are different, the type distance score will be calculated. 
 
-## 11. Built-in functions
+## Built-in functions
 
 ### Dictionaries
 
@@ -1815,4 +1815,3 @@ Determines whether two object instances are equal.
 ##### `ToString:string(object: var[]..[])`
 
 Returns object in string representation.
-
