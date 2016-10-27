@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is the specification for DesignScript programming language. DesignScript is a dynamic language and provides strong support for flow-based programming environment.
+This is the specification for DesignScript programming language. DesignScript is a dynamic language and provides support for flow-based programming environment.
 
 The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
@@ -61,19 +61,28 @@ Identifier =
 
 ### Keywords
 
-The following words are reserved as being a keywords
+The following words are reserved as keywords
 
 ```
-break, continue, def, else, elseif, for, if, in, return, while
+break, continue, def, else, elseif, for, if, in, return, while, imperative
 ```
 
+### Operators
+
+The following character sequences represent operators.
+
+```
++    -    *    /   %
+==   <    >    <=  >=  !=
+&&   ||   !
+..   @    @@  
+```
 
 ### Bool literal
 
 ```
 true, false
 ```
-
 
 ### Number literal
 
@@ -374,7 +383,7 @@ Following implicit type conversion rules specify the result of converting one ty
 
 ## Variables
 
-Variables in DesignScript are immutable. That is, a variable is only allowed to be assigned once. For example,
+A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Unlike other languages, variable in DesignScript is immutable. That is, a variable is only allowed to be assigned once. For example,
 
 ```
 a = 1;
@@ -387,10 +396,6 @@ All variables should be defined before being used. For example,
 b = a; // error: "a" is not defined yet
 a = 1;
 ```
-
-### Dynamic
-
-Variables in DesignScript are dynamic. It is free to assign any kinds of objects to any variable, and the type of a variable is totally run-time dependent.
 
 ### Scope
 
