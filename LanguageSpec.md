@@ -219,7 +219,7 @@ The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [repl
 
 #### Dynamic list
 
-The list in DesignScript is dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
+Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
 x = {1, 2, 3};
@@ -227,9 +227,9 @@ x[5] = 4;      // x = {1, 2, 3, null, null, 4};
 ```
 
 
-#### Use as a dictionary
+#### Use as a list
 
-List in DesignScript is just a special case of dictionary whose keys are integers. When indexing a list, the type of key could be any type. For example:
+A list is just a special case of list whose keys are integers. When indexing a list, the type of key could be any type. For example:
 
 ```
 x = {1, 2, 3};
@@ -238,7 +238,7 @@ x[false] = 5;
 ```
 
 
-When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys. 
+When a list is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys. 
 
 ### Type conversion rules(TBD)
 
@@ -680,7 +680,7 @@ List access expression is of the form
 a[x]
 ```
 
-"x" could be integer value or a key of any kind of types (if “a” is a [dictionary](#heading=h.x6hkvoejht8r)). 
+"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)). 
 
 The following rules apply:
 
@@ -1151,46 +1151,68 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments �
 
 ## Built-in functions
 
-### Dictionaries
+### Types
 
-##### `Append:var[]..[](list: var[]..[], element: var[]..[])`
+##### `NameOf : string ( list : var[]..[] )`
+
+Get the name of the type of a value.
+
+Examples:
+
+```
+a = 1;
+b = NameOf( a ); // "number"
+```
+
+```
+a = {};
+b = NameOf( a ); // "table"
+```
+
+### Lists
+
+#### Modification
+
+##### `Append(list : var[]..[], element: var[]..[]) : var[]..[] `
 
 Creates a new list with a new element inserted at the end
 
-##### `Concat:var[]..[](list1: var[]..[], list2: var[]..[])`
+##### `Concat(list1 : var[]..[], list2: var[]..[]) : var[]..[]`
 
 Concats list1 and list2 and returns a new list.
 
-##### `ContainsKey:bool(list: var[]..[], key: var)`
+##### `Set(list : var[]..[], key : var, value : var) : var[]..[]`
 
-Checks if the specified key is present in the specified dictionary.
+Sets a position in a list and returns a new list
 
-##### `Count:int(list: var[]..[])`
-
-Returns the number of elements in the specified list.
-
-##### `GetKeys:var[]..[](list: var[]..[])`
-
-Gets all keys from the specified dictionary.
-
-##### `GetValues:var[]..[](list: var[]..[])`
-
-Gets all values stored in the specified dictionary and for a simple list it returns all elements.
-
-##### `Insert:var[]..[](list: var[]..[], element: var[]..[], index: int)`
+##### `Insert(list : var[]..[], element: var[]..[], index: int) : var[]..[]`
 
 Inserts an element into a list at specified index.
 
-##### `Remove:var(list: var[]..[], index: int)`
+##### `Remove(list : var[]..[], index: int) : var[]..[]`
 
-Removes element at the specified index of the list.
+Removes element at the specified position of the list.
+
+#### Query
+
+##### `Count(list : var[]..[]) : number`
+
+Returns the number of elements in the specified list.
+
+##### `Keys(list : var[]..[]) : var[]`
+
+Gets all keys from the specified list. The keys could be strings or numbers.
+
+##### `Values(list : var[]..[]) : var[]`
+
+Gets all values stored in the specified list. The values could be of any type.
 
 ### Other
 
-##### `Equals:bool(objectA: var, objectB: var)`
+##### `Equals(varA: var, varB: var) `
 
-Determines whether two object instances are equal.
+Determines whether two values are equal via a shallow comparison.
 
-##### `ToString:string(object: var[]..[])`
+##### `ToString(object: var[]..[])`
 
 Returns object in string representation.
