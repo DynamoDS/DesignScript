@@ -1,74 +1,22 @@
 grammar DesignScript;
 
 program:
-	( coreStmt )*
-    ;
-
-//assocBlock:
-//    '[' AssocKeyword ']' argList? '{' assocBlockBody '}'
-//    ;
-
-//assocBlockBody:
-//    ( coreStmt )*
-//    ;
-
-//langBlock:
-//    imperBlock
-//    ;
+    ( coreStmt )*
+	;
 
 coreStmt:
     assignStmt ';'
-|   funcDef
 |   exprStmt
 |   returnStmt ';'
-|   langReturnStmt
-|   langAssignStmt
-//|   langBlock
+|   funcDef
+|   imperBlock
+|   imperBlockReturnStmt
+|   imperBlockAssignStmt
     ;
-
-langReturnStmt:
-	'return' '=' imperBlock
-	;
-
-langAssignStmt:
-    Ident (':' typeAnnotation)? '=' imperBlock
-    ;
-
-argList:
-    ('(' identList ')')
-    ;
-
-imperBlock:
-    '[' ImperKeyword ']' argList? '{' imperBlockBody '}'
-    ;
-
-// what happens when an imper block lacks a return? return last expr?
-// should nested imper blocks be discovered in static analysis? or prevented in parser?
-// what are the limitations on function definition inlining?
-// should assignment be an expr?
-// should unary increment, decrement be an expr?
-// should unary inc/dec be allowed in associative?
-// can imperative blocks just be syntactic sugar on function calls?
-// scoped blocks in flow blocks?
 
 funcDef:
-	'def' (':' typeAnnotation)? argList? '{' (coreStmt)* '}'
+	'def' (':' typeAnnotation)? Ident '(' identList? ')' '{' (coreStmt)* '}'
 	;
-
-imperBlockBody:
-    ( imperStmt )*
-    ;
-
-imperStmt:
-     coreStmt                                          #imperCoreStmt
-|    'if' '(' expr ')' imperStmt ('else' imperStmt)?   #ifStmt
-|    'for' '(' forControl ')' imperStmt                #forStmt
-|    'while' parExpr imperStmt                         #whileStmt
-|    'do' imperStmt 'while' parExpr ';'                #doStmt
-|    'break' Ident? ';'                                #breakStmt
-|    'continue' Ident? ';'                             #continueStmt
-|    '{' imperBlockBody '}'                            #blockStmt
-    ;
 
 expr:
     primary                                     #primaryExpr
@@ -85,6 +33,7 @@ expr:
 |   expr '..' expr '..' '#' expr                #countRangeExpr
 |   expr '[' expr ']'                           #indexExpr
 |   expr repGuideList                           #repGuideExpr
+|   imperBlock                                  #imperBlockExpr
     ;
 
 primary:
@@ -130,20 +79,55 @@ returnStmt:
     'return' '=' expr
     ;
 
-assignStmt:
-    Ident (':' typeAnnotation)? '=' expr
+imperBlock:
+    '[' ImperKeyword ']' depCaptureList? '{' imperBlockBody '}'
     ;
+
+imperBlockReturnStmt:
+	'return' '=' imperBlock
+	;
+
+imperBlockAssignStmt:
+	typedIdent '=' imperBlock
+	;
+
+imperBlockBody:
+    ( imperStmt )*
+    ;
+
+imperStmt:
+     coreStmt                                          #imperCoreStmt
+|    'if' '(' expr ')' imperStmt ('else' imperStmt)?   #ifStmt
+|    'for' '(' forControl ')' imperStmt                #forStmt
+|    'while' parExpr imperStmt                         #whileStmt
+|    'do' imperStmt 'while' parExpr ';'                #doStmt
+|    'break' Ident? ';'                                #breakStmt
+|    'continue' Ident? ';'                             #continueStmt
+|    '{' imperBlockBody '}'                            #blockStmt
+    ;
+
+depCaptureList:
+    ('(' identList ')')
+    ;
+
+assignStmt:
+    typedIdent '=' expr
+    ;
+
+typedIdent:
+	Ident (':' typeAnnotation)?
+	;
 
 exprList:
     expr (',' expr)*
     ;
 
 identList:
-    Ident (',' Ident)*
+    qualifiedIdent (',' qualifiedIdent)*
     ;
 
 typeAnnotation:
-    ('local')? qualifiedIdent?
+    qualifiedIdent?
     ;
 
 qualifiedIdent:
@@ -169,10 +153,6 @@ CONTINUE: 'continue';
 BoolLit:
     'true'
 |   'false'
-    ;
-
-AssocKeyword:
-    'Associative'
     ;
 
 ImperKeyword:
