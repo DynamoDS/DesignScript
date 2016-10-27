@@ -1153,7 +1153,7 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments â€
 
 ### Types
 
-##### `NameOf : string ( list : var[]..[] )`
+##### `NameOf(value : var[]..[]) : string`
 
 Get the name of the type of a value.
 
@@ -1166,46 +1166,110 @@ b = NameOf( a ); // "number"
 
 ```
 a = {};
-b = NameOf( a ); // "table"
+b = NameOf( a ); // "dictionary"
 ```
 
-### Lists
+### Dictionaries
 
 #### Modification
 
-##### `Append(list : var[]..[], element: var[]..[]) : var[]..[] `
+##### `Append(dictionary : var[]..[], value: var[]..[]) : var[]..[] `
 
-Creates a new list with a new element inserted at the end
+`Append` creates a new `dictionary` with a new element inserted at the end. If the `dictionary` is not array-like, returns an `error`.
 
-##### `Concat(list1 : var[]..[], list2: var[]..[]) : var[]..[]`
+Examples:
 
-Concats list1 and list2 and returns a new list.
+```
+a = {1, 2, 3};
+b = Append(a, 4); // {1,2,3,4}
+```
 
-##### `Set(list : var[]..[], key : var, value : var) : var[]..[]`
+##### `Set(dictionary : var[]..[], key : var, value : var) : var[]..[]`
 
-Sets a position in a list and returns a new list
+`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not an non-negative integer `number` or `string`, returns an `error`.
 
-##### `Insert(list : var[]..[], element: var[]..[], index: int) : var[]..[]`
+Examples:
 
-Inserts an element into a list at specified index.
+```
+a = {1, 2, 3};
+b = Set(a, 0, 10); // {10,2,3}
+```
 
-##### `Remove(list : var[]..[], index: int) : var[]..[]`
+```
+a = {"foo" : 1};
+b = Set(a, "bar", 2); // {"foo" : 1, "bar" : 2}
+```
 
-Removes element at the specified position of the list.
+##### `Remove(dictionary : var[]..[], index: int) : var[]..[]`
+
+`Remove` removes the value at the specified key of the `dictionary`. If the key is not present, returns the `dictionary` unmodified.
+
+Examples:
+
+```
+a = {1, 2, 3};
+b = Remove(a, 0); // {1 : 2, 2 : 3}
+```
+
+```
+a = {"foo" : "bar"};
+b = Remove(a, "foo"); // {}
+```
+
+```
+a = {};
+b = Remove(a, "foo"); // {}
+```
 
 #### Query
 
-##### `Count(list : var[]..[]) : number`
+##### `Count(dictionary : var[]..[]) : number`
 
-Returns the number of elements in the specified list.
+Returns the number of elements in the specified `dictionary`.
 
-##### `Keys(list : var[]..[]) : var[]`
+Examples:
 
-Gets all keys from the specified list. The keys could be strings or numbers.
+```
+a = {1, 2, 3};
+b = Count(a); // 3
+```
 
-##### `Values(list : var[]..[]) : var[]`
+```
+a = {"foo" : 1, 0 : 3};
+b = Count(a); // 3
+```
 
-Gets all values stored in the specified list. The values could be of any type.
+##### `Keys(dictionary : var[]..[]) : var[]`
+
+Gets all keys from the specified dictionary and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
+
+Examples:
+
+```
+a = {1, 2, 3};
+b = Keys(a); // {0,1,2}
+```
+
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {"foo", 0}
+```
+
+##### `Values(dictionary : var[]..[]) : var[]`
+
+Gets all values stored in the specified dictionary. The values could be of any type. The order the values are provided is not defined.
+
+Examples:
+
+```
+a = {1, 2, 3};
+b = Keys(a); // {1, 2, 3}
+```
+
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {1, 3}
+```
 
 ### Other
 
@@ -1213,6 +1277,36 @@ Gets all values stored in the specified list. The values could be of any type.
 
 Determines whether two values are equal via a shallow comparison.
 
+Examples:
+
+```
+a = {1, 2, 3};
+b = {1, 2, 3};
+c = Equals(a, b); // true
+```
+
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {"foo", 0}
+```
+
 ##### `ToString(object: var[]..[])`
 
 Returns object in string representation.
+
+Examples:
+
+```
+a = {1, 2, 3};
+c = ToString(a, b); // "{1, 2, 3}"
+```
+
+```
+a = {"foo" : 1, 0 : 3};
+b = ToString(a); // "{"foo" : 1, 0 : 3}"
+```
+
+```
+a = 1;
+b = ToString(a); // "1"
+```
