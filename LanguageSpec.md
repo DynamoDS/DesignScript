@@ -6,7 +6,7 @@ This is the specification for DesignScript programming language. DesignScript is
 
 The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
-This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The later is implementation dependent.
+This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The latter is implementation dependent. 
 
 ## Lexical elements
 
@@ -532,7 +532,7 @@ InlineConditionalExpression = Expression ? Expression : Expression;
 ```
 
 
-The first expression in inline conditional expression  is condition expression whose type is bool. If it is true, the value of "?" clause will be returned; otherwise the value of “:” clause will be returned. The types of expressions for true and false conditions are not necessary to be the same. Example:
+The first expression in inline conditional expression is condition expression whose type is bool. If it is true, the value of "?" clause will be returned; otherwise the value of “:” clause will be returned. The types of expressions for true and false conditions are not necessary to be the same. Example:
 
 ```
 x = 2;
@@ -696,34 +696,7 @@ Empty statement is
 ;
 ```
 
-### Import statements
-
-Import statements import other DesignScript source file or C# assembly into current namespace.
-
-```
-ImportStatement = "import" “(“ (string | (ident from string))“)”
-```
-
-If importing a C# assembly, DesignScript virtual machine will generate DesignScript classes for classes defined in the assembly, this is done by [FFI](#heading=h.j80uc8saim6x).
-
-Import statements could import all the entities found at the location, or for specific named-entity found at the location.
-
-The location may be specified by:
-
-* A relative file path, using local operating system conventions.
-
-* An absolute file path, using local operating system conventions.
-
-* A URI.
-
-Example:
-
-```
-import ("/home/dev/libraries/foo.ds");
-import (Point from “Geometry.dll”);
-```
-
-### Expression statements
+### Expression statement
 
 ```
 ExpressionStatement = Expression ";"
@@ -731,12 +704,11 @@ ExpressionStatement = Expression ";"
 
 Expression statements are expressions without assignment.
 
-### Assignments
+### Assignment statement
 
 ```
 Assignment = Expression "=" ((Expression “;”) | LanguageBlock)
 ```
-
 
 The left hand side of "=" should be assignable. Typically, it is [member access expression](#heading=h.rf6u7s9js69k) or [array access expression](#heading=h.7iw1e1npd4z) or variable. If the left hand side is a variable which hasn’t been defined before, the assignment statement will define this variable.
 
@@ -750,7 +722,7 @@ Flow statements change the execution flow of the program. A flow statement is on
 
 3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
 
-### Return statements
+### Return statement
 
 ```
 ReturnStatement = "return" “=” Expression “;”
@@ -759,7 +731,7 @@ ReturnStatement = "return" “=” Expression “;”
 
 A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function.
 
-### Break statements
+### Break statement
 
 ```
 BreakStatement = "break" “;”
@@ -777,7 +749,7 @@ ContinueStatement = "continue" “;”
 
 A "continue" statement begins the next iteration of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
 
-### If statements
+### If statement
 
 "if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).  
 
@@ -807,10 +779,9 @@ else {
 }
 ```
 
+### While statement
 
-### While statements
-
-"while" statements repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
+A "while" statement repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
 
 ```
 WhileStatement = "while" “(” Expression “)” StatementBlock
@@ -863,9 +834,7 @@ Imperative language block provides a convenient way to use imperative semantics.
 
 The key differences between associative language block and imperative language block are:
 
-* [Associative update](#heading=h.1vv0i14ck6wu) is temporarily disabled in imperative language block.
-
-* "if", “for” and “while” statements are only available in imperative language block.
+* "if", “for” and “while” statements are only available in imperative language blocks. 
 
 Example:
 
@@ -1042,141 +1011,6 @@ Get a `string` representation of the type of a value.
 
 Examples:
 
-<<<<<<< HEAD
-#####Average:double(list: int[]..[])`
-
-Returns average value of all elements in the specified list.
-
-#####Break()`
-
-Notifies debugger to break at the point.
-
-#####Concat:var[]..[](list1: var[]..[], list2: var[]..[])`
-
-Concats list1 and list2 and returns a new list.
-
-#####Contains:bool(list: var[]..[], element: var)`
-
-Checks if the specified element is in the specified list.
-
-#####Contains:bool(list: var[]..[], element: var[]..[])`
-
-Checks if the specified element is in the specified list.
-
-#####ContainsKey:bool(list: var[]..[], key: var)`
-
-Checks if the specified key is present in the specified dictionary.
-
-#####Count:int(list: var[]..[])`
-
-Returns the number of elements in the specified list.
-
-#####CountTrue:int(list: var[]..[])`
-
-Returns the number of true values in the specified list.
-
-#####CountFalse:int(list: var[]..[])`
-
-Returns the number of falsevalues in the specified list.
-
-#####Equals:bool(objectA: var, objectB: var)`
-
-Determines whether two object instances are equal.
-
-#####Evaluate:var[]..[](fptr: fptr, params: var[]..[], unpack: bool)`
-
-For internal use. Evaluates a function pointer with specified params.
-
-#####Flatten:var[](list:var[]..[])`
-
-Returns the flattened 1D list of the multi-dimensional input list.
-
-#####GetElapsedTime:int()`
-
-Returns elapsed milliseconds in the virtual machine
-
-#####GetKeys:var[]..[](list: var[]..[])`
-
-Gets all keys from the specified dictionary.
-
-#####GetValues:var[]..[](list: var[]..[])`
-
-Gets all values stored in the specified dictionary and for a simple list it returns all elements.
-
-#####IndexOf:int(list: var[]..[], element: var[]..[])`
-
-Returns the index of the member in the list.
-
-#####Insert:var[]..[](list: var[]..[], element: var, index: int)`
-
-Inserts an element into a list at specified index.
-
-#####Insert:var[]..[](list: var[]..[], element: var[]..[], index: int)`
-
-Inserts an element into a list at specified index.
-
-#####IsRectangular: bool(list: var[]..[])`
-
-Checks if each of rows in multidimensional  list has the same number of elements.
-
-#####ImportFromCSV:double[][](filePath: string )`
-
-Imports data from a text file containing comma separated values into two-dimensional list.
-
-#####ImportFromCSV:double[][](filePath: string, transpose:bool)`
-
-Imports data from a text file containing comma separated values into two-dimensional list and
-
-also transpose the output list if specified.
-
-#####IsHomogeneous: bool(list: var[]..[])`
-
-Checks if all the elements in the specified list are of the same type.
-
-#####IsUniformDepth:bool(list: var[]..[])`
-
-Checks if the list has a uniform depth.
-
-#####Map:double(rangeMin: double, rangeMax: double, inputValue: double)`
-
-Maps a value into an input range.
-
-#####MapTo:double(rangeMin: double, rangeMax: double, inputValue: double, targetRangeMin: double, targetRangeMax:double)`
-
-Maps a value from one range to another range.
-
-#####NormalizeDepth:var[]..[](list: var[]..[])`
-
-Returns a list with uniform depth as specified by the input depth.
-
-#####NormalizeDepth:var[]..[](list: var[]..[], rank: var)`
-
-Return multidimensional list according to the rank given.
-
-#####Print(msg: var)`
-
-Print msg to the console.
-
-#####Rank(list: var[]..[])`
-
-Counts the maximal rank of the specified list.
-
-#####Remove:var(list: var[]..[], index: int)`
-
-Removes element at the specified index of the list.
-
-#####RemoveDuplicates:var[]..[](list: var[]..[])`
-
-Removes duplicate elements in the specified list.
-
-#####RemoveNulls:var[]..[](list: var[]..[])`
-
-Removes null elements from the specified list.
-
-#####RemoveIfNot:var[]..[](list: var[]..[], type:string)`
-
-Removes the members of the list which are not members of the specified type.
-=======
 ```
 a = 1;
 b = TypeOf( a ); // "number"
@@ -1184,16 +1018,16 @@ b = TypeOf( a ); // "number"
 
 ```
 a = {};
-b = TypeOf( a ); // "dictionary"
+b = TypeOf( a ); // "table"
 ```
 
 ### Dictionaries
 
 #### Modification
 
-##### `Append(dictionary : var[]..[], value: var[]..[]) : var[]..[] `
+##### `Append(table : var[]..[], value: var[]..[]) : var[]..[] `
 
-`Append` creates a new `dictionary` with a new element inserted at the end. If the `dictionary` is not array-like, returns an `error`.
+`Append` creates a new `table` with a new element inserted at the end. If the `table` is not array-like, returns an `error`.
 
 Examples:
 
@@ -1202,9 +1036,9 @@ a = {1, 2, 3};
 b = Append(a, 4); // {1,2,3,4}
 ```
 
-##### `Set(dictionary : var[]..[], key : var, value : var) : var[]..[]`
+##### `Set(table : var[]..[], key : var, value : var) : var[]..[]`
 
-`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not a non-negative integer `number` or `string`, returns an `error`.
+`Set` sets a key in a `table`, returning a new `table`. If the key is not present, it is added. If the key is not a non-negative integer `number` or `string`, returns an `error`.
 
 Examples:
 
@@ -1218,9 +1052,9 @@ a = {"foo" : 1};
 b = Set(a, "bar", 2); // {"foo" : 1, "bar" : 2}
 ```
 
-##### `Remove(dictionary : var[]..[], index: int) : var[]..[]`
+##### `Remove(table : var[]..[], index: int) : var[]..[]`
 
-`Remove` removes the value at the specified key of the `dictionary`. If the key is not present, returns the `dictionary` unmodified.
+`Remove` removes the value at the specified key of the `table`. If the key is not present, returns the `table` unmodified.
 
 Examples:
 
@@ -1241,9 +1075,9 @@ b = Remove(a, "foo"); // {}
 
 #### Query
 
-##### `Count(dictionary : var[]..[]) : number`
+##### `Count(table : var[]..[]) : number`
 
-Returns the number of elements in the specified `dictionary`.
+Returns the number of elements in the specified `table`.
 
 Examples:
 
@@ -1257,9 +1091,9 @@ a = {"foo" : 1, 0 : 3};
 b = Count(a); // 3
 ```
 
-##### `Keys(dictionary : var[]..[]) : var[]`
+##### `Keys(table : var[]..[]) : var[]`
 
-Gets all keys from the specified `dictionary` and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
+Gets all keys from the specified `table` and returns them as a list-like `table`. The keys could be strings or numbers. The order the keys are provided is not defined.
 
 Examples:
 
@@ -1273,9 +1107,9 @@ a = {"foo" : 1, 0 : 3};
 b = Keys(a); // {"foo", 0}
 ```
 
-##### `Values(dictionary : var[]..[]) : var[]`
+##### `Values(table : var[]..[]) : var[]`
 
-Gets all values stored in the specified `dictionary`. The values could be of any type. The order the values are provided is not defined.
+Gets all values stored in the specified `table`. The values could be of any type. The order the values are provided is not defined.
 
 Examples:
 
