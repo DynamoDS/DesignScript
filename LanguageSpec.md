@@ -31,7 +31,7 @@ y = 2;
 
 ### Semicolons
 
-Semicolon ";" is used as a terminator of a statement.
+Semicolon ";" is used as a terminator of a certain class of statements.
 
 ### Identifiers
 
