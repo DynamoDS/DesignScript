@@ -642,7 +642,7 @@ InlineConditionalExpression = Expression ? Expression : Expression;
 ```
 
 
-The first expression in inline conditional expression  is condition expression whose type is bool. If it is true, the value of "?" clause will be returned; otherwise the value of “:” clause will be returned. The types of expressions for true and false conditions are not necessary to be the same. Example:
+The first expression in inline conditional expression is condition expression whose type is bool. If it is true, the value of "?" clause will be returned; otherwise the value of “:” clause will be returned. The types of expressions for true and false conditions are not necessary to be the same. Example:
 
 ```
 x = 2;
@@ -811,36 +811,7 @@ Empty statement is
 ;
 ```
 
-
-### Import statements
-
-Import statements import other DesignScript source file or C# assembly into current namespace. 
-
-```
-ImportStatement = "import" “(“ (string | (ident from string))“)”
-```
-
-
-If importing a C# assembly, DesignScript virtual machine will generate DesignScript classes for classes defined in the assembly, this is done by [FFI](#heading=h.j80uc8saim6x). 
-
-Import statements could import all the entities found at the location, or for specific named-entity found at the location.
-
-The location may be specified by:
-
-* A relative file path, using local operating system conventions.
-
-* An absolute file path, using local operating system conventions.
-
-* A URI.
-
-Example:
-
-```
-import ("/home/dev/libraries/foo.ds");
-import (Point from “Geometry.dll”);
-```
-
-### Expression statements
+### Expression statement
 
 ```
 ExpressionStatement = Expression ";"
@@ -848,12 +819,11 @@ ExpressionStatement = Expression ";"
 
 Expression statements are expressions without assignment. 
 
-### Assignments
+### Assignment statement
 
 ```
 Assignment = Expression "=" ((Expression “;”) | LanguageBlock)
 ```
-
 
 The left hand side of "=" should be assignable. Typically, it is [member access expression](#heading=h.rf6u7s9js69k) or [array access expression](#heading=h.7iw1e1npd4z) or variable. If the left hand side is a variable which hasn’t been defined before, the assignment statement will define this variable.
 
@@ -867,7 +837,7 @@ Flow statements change the execution flow of the program. A flow statement is on
 
 3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
 
-### Return statements
+### Return statement
 
 ```
 ReturnStatement = "return" “=” Expression “;”
@@ -876,7 +846,7 @@ ReturnStatement = "return" “=” Expression “;”
 
 A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function. 
 
-### Break statements
+### Break statement
 
 ```
 BreakStatement = "break" “;”
@@ -894,7 +864,7 @@ ContinueStatement = "continue" “;”
 
 A "continue" statement begins the next iteration of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
 
-### If statements
+### If statement
 
 "if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).  
 
@@ -924,10 +894,9 @@ else {
 }
 ```
 
+### While statement
 
-### While statements
-
-"while" statements repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
+A "while" statement repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
 
 ```
 WhileStatement = "while" “(” Expression “)” StatementBlock
