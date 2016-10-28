@@ -6,7 +6,7 @@ This is the specification for DesignScript programming language. DesignScript is
 
 The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
-This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The later is implementation dependent. 
+This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The latter is implementation dependent. 
 
 ## Lexical elements
 
@@ -949,8 +949,6 @@ Imperative language block provides a convenient way to use imperative semantics.
 
 The key differences between associative language block and imperative language block are:
 
-* [Associative update](#heading=h.1vv0i14ck6wu) is temporarily disabled in imperative language block.
-
 * "if", “for” and “while” statements are only available in imperative language block. 
 
 Example:
@@ -1135,16 +1133,16 @@ b = TypeOf( a ); // "number"
 
 ```
 a = {};
-b = TypeOf( a ); // "dictionary"
+b = TypeOf( a ); // "table"
 ```
 
 ### Dictionaries
 
 #### Modification
 
-##### `Append(dictionary : var[]..[], value: var[]..[]) : var[]..[] `
+##### `Append(table : var[]..[], value: var[]..[]) : var[]..[] `
 
-`Append` creates a new `dictionary` with a new element inserted at the end. If the `dictionary` is not array-like, returns an `error`.
+`Append` creates a new `table` with a new element inserted at the end. If the `table` is not array-like, returns an `error`.
 
 Examples:
 
@@ -1153,9 +1151,9 @@ a = {1, 2, 3};
 b = Append(a, 4); // {1,2,3,4}
 ```
 
-##### `Set(dictionary : var[]..[], key : var, value : var) : var[]..[]`
+##### `Set(table : var[]..[], key : var, value : var) : var[]..[]`
 
-`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not a non-negative integer `number` or `string`, returns an `error`.
+`Set` sets a key in a `table`, returning a new `table`. If the key is not present, it is added. If the key is not a non-negative integer `number` or `string`, returns an `error`.
 
 Examples:
 
@@ -1169,9 +1167,9 @@ a = {"foo" : 1};
 b = Set(a, "bar", 2); // {"foo" : 1, "bar" : 2}
 ```
 
-##### `Remove(dictionary : var[]..[], index: int) : var[]..[]`
+##### `Remove(table : var[]..[], index: int) : var[]..[]`
 
-`Remove` removes the value at the specified key of the `dictionary`. If the key is not present, returns the `dictionary` unmodified.
+`Remove` removes the value at the specified key of the `table`. If the key is not present, returns the `table` unmodified.
 
 Examples:
 
@@ -1192,9 +1190,9 @@ b = Remove(a, "foo"); // {}
 
 #### Query
 
-##### `Count(dictionary : var[]..[]) : number`
+##### `Count(table : var[]..[]) : number`
 
-Returns the number of elements in the specified `dictionary`.
+Returns the number of elements in the specified `table`.
 
 Examples:
 
@@ -1208,9 +1206,9 @@ a = {"foo" : 1, 0 : 3};
 b = Count(a); // 3
 ```
 
-##### `Keys(dictionary : var[]..[]) : var[]`
+##### `Keys(table : var[]..[]) : var[]`
 
-Gets all keys from the specified `dictionary` and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
+Gets all keys from the specified `table` and returns them as a list-like `table`. The keys could be strings or numbers. The order the keys are provided is not defined.
 
 Examples:
 
@@ -1224,9 +1222,9 @@ a = {"foo" : 1, 0 : 3};
 b = Keys(a); // {"foo", 0}
 ```
 
-##### `Values(dictionary : var[]..[]) : var[]`
+##### `Values(table : var[]..[]) : var[]`
 
-Gets all values stored in the specified `dictionary`. The values could be of any type. The order the values are provided is not defined.
+Gets all values stored in the specified `table`. The values could be of any type. The order the values are provided is not defined.
 
 Examples:
 
