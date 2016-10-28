@@ -484,7 +484,8 @@ Range expression is a convenient way to generate a list.
 
 ```
 RangeExpression =
-     Expression [".." [“#”] Expression [“..” [“#”] Expression]```
+     Expression [".." [“#”] Expression [“..” [“#”] Expression]
+```
 
 
 There are three forms of range expressions:
