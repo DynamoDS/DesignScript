@@ -192,18 +192,7 @@ The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [repl
 #### List as dictionary
 
 List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key. For example:
-
-```
-x = {1, 2, 3};
-
-y = Set(x, "foo", 4);
-v1 = y["foo"];         // v1 == 4
-
-z = Set(y, false, 5);
-v2 = z[false];         // v2 == 5
-```
-
-If the index is an integer but not in the range of continuous indices start from 0, then this index is treated as a special integer key. For example,
+Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
 x = {1, 2, 3};
@@ -512,7 +501,8 @@ There are three forms of range expressions:
 
 Example:
 
-```1..5;       // {1, 2, 3, 4, 5}
+```
+1..5;       // {1, 2, 3, 4, 5}
 
 5..1;       // {5, 4, 3, 2, 1}
 
@@ -534,7 +524,6 @@ Range expression  is handled specially for strings with single character. For ex
 
 “a”..”g”..#3; // {“a”, “d”, “g”}
 ```
-
 
 ### Inline conditional expression
 
@@ -581,7 +570,7 @@ List access expression is of the form
 a[x]
 ```
 
-"x" could be integer value or a key of any kind of types (if “a” is a [dictionary](#heading=h.x6hkvoejht8r)).
+"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)).
 
 The following rules apply:
 
@@ -669,13 +658,11 @@ Precedence</td>
   </tr>
 </table>
 
-
 ### Arithmetic operators
 
 ```
 +, -, *, /, %
 ```
-
 
 Normally the operands are either integer value or floating-point value. "+" can be used as string concatenation:
 
@@ -685,20 +672,17 @@ s2 = “Script”;
 s = s1 + s2;  // “DesignScript”
 ```
 
-
 ### Comparison operators
 
 ```
 >, >=, <, <=, ==, !=
 ```
 
-
 ### Logical operators
 
 ```
 &&, ||, !
 ```
-
 
 The operand should be bool type; otherwise type conversion will be incurred.
 
@@ -712,7 +696,6 @@ Empty statement is
 ;
 ```
 
-
 ### Import statements
 
 Import statements import other DesignScript source file or C# assembly into current namespace.
@@ -720,7 +703,6 @@ Import statements import other DesignScript source file or C# assembly into curr
 ```
 ImportStatement = "import" “(“ (string | (ident from string))“)”
 ```
-
 
 If importing a C# assembly, DesignScript virtual machine will generate DesignScript classes for classes defined in the assembly, this is done by [FFI](#heading=h.j80uc8saim6x).
 
@@ -1052,14 +1034,15 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments �
 
 ## Built-in functions
 
-#####AllFalse:bool(list: var[]..[])`
+### Types
 
-Checks if all elements in the specified list are false.
+##### `TypeOf(value : var[]..[]) : string`
 
-#####AllTrue:bool(list: var[]..[])`
+Get a `string` representation of the type of a value.
 
-Checks if all elements in the specified list are true.
+Examples:
 
+<<<<<<< HEAD
 #####Average:double(list: int[]..[])`
 
 Returns average value of all elements in the specified list.
@@ -1193,85 +1176,138 @@ Removes null elements from the specified list.
 #####RemoveIfNot:var[]..[](list: var[]..[], type:string)`
 
 Removes the members of the list which are not members of the specified type.
+=======
+```
+a = 1;
+b = TypeOf( a ); // "number"
+```
 
-#####RemoveKey:bool(list:var[]..[], key: var)`
+```
+a = {};
+b = TypeOf( a ); // "dictionary"
+```
 
-Returns true if the specified key is removed from the specified list; otherwise returns false.
+### Dictionaries
 
-#####Reorder:var[](list: var[], indice:var[])`
+#### Modification
 
-Reorders the list using the specified indices.
+##### `Append(dictionary : var[]..[], value: var[]..[]) : var[]..[] `
 
-#####Reverse:var[]..[](list: var[]..[])`
+`Append` creates a new `dictionary` with a new element inserted at the end. If the `dictionary` is not array-like, returns an `error`.
 
-Reverses the specified list.
+Examples:
 
-#####SetDifference:var[](list1: var[], list2: var[])`
+```
+a = {1, 2, 3};
+b = Append(a, 4); // {1,2,3,4}
+```
 
-Returns objects that are included in list1 but not excluded in list2
+##### `Set(dictionary : var[]..[], key : var, value : var) : var[]..[]`
 
-#####SetIntersection:var[](list1: var[], list2: var[])`
+`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not a non-negative integer `number` or `string`, returns an `error`.
 
-Produces the set intersection of two lists.
+Examples:
 
-#####SetUnion:var[](list1: var[], list2: var[])`
+```
+a = {1, 2, 3};
+b = Set(a, 0, 10); // {10,2,3}
+```
 
-Produces the set union of two sequences by using the default equality comparer.
+```
+a = {"foo" : 1};
+b = Set(a, "bar", 2); // {"foo" : 1, "bar" : 2}
+```
 
-#####Sleep(x: int)`
+##### `Remove(dictionary : var[]..[], index: int) : var[]..[]`
 
-Put the virtual machine to sleep for x milliseconds.
+`Remove` removes the value at the specified key of the `dictionary`. If the key is not present, returns the `dictionary` unmodified.
 
-#####SomeFalse:bool(list: var[]..[])`
+Examples:
 
-Returns true if any element in the list is false
+```
+a = {1, 2, 3};
+b = Remove(a, 0); // {1 : 2, 2 : 3}
+```
 
-#####SomeNulls:bool(list: var[]..[])`
+```
+a = {"foo" : "bar"};
+b = Remove(a, "foo"); // {}
+```
 
-Returns true if any element in the list is null.
+```
+a = {};
+b = Remove(a, "foo"); // {}
+```
 
-#####SomeTrue:bool(list: var[]..[])`
+#### Query
 
-Returns true if any element in the list is true.
+##### `Count(dictionary : var[]..[]) : number`
 
-#####Sort:int[](list: int[])`
+Returns the number of elements in the specified `dictionary`.
 
-Obsolete.
+Examples:
 
-#####SortIndexByValue:int[](list: double[])`
+```
+a = {1, 2, 3};
+b = Count(a); // 3
+```
 
-Sorts a specified list by values of its members in ascending order.
+```
+a = {"foo" : 1, 0 : 3};
+b = Count(a); // 3
+```
 
-#####SortIndexByValue:int[](list: double[], ascending: bool)`
+##### `Keys(dictionary : var[]..[]) : var[]`
 
-Sorts a specified list by values of its members in either descending or ascending order.
+Gets all keys from the specified `dictionary` and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
 
-#####Sum:int(list: int[]..[])`
+Examples:
 
-Returns the sum of all elements in the specified list.
+```
+a = {1, 2, 3};
+b = Keys(a); // {0,1,2}
+```
 
-#####ToString:string(object: var[]..[])`
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {"foo", 0}
+```
 
-Obsolete. Use __ToStringFromObject()`or __ToStringFromArray()`instead. Returns object in string representation.
+##### `Values(dictionary : var[]..[]) : var[]`
 
-#####Transpose:var[]..[](list: var[]..[])`
+Gets all values stored in the specified `dictionary`. The values could be of any type. The order the values are provided is not defined.
 
-Swaps rows and columns in a list of lists. If there are some rows that are shorter than others,
+Examples:
 
-null values are inserted as placeholders in the result list such that it is always rectangular.
+```
+a = {1, 2, 3};
+b = Keys(a); // {1, 2, 3}
+```
 
-#####__GC()`
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {"foo", 0}
+```
 
-Force garbage collection.
+### Other
 
-#####__ToStringFromObject:string(object: var)`
+##### `ToString(object: var[]..[])`
 
 Returns object in string representation.
 
-#####__ToStringFromArray:string(list: var[])`
+Examples:
 
-Returns list in string representation.
+```
+a = {1, 2, 3};
+c = ToString(a, b); // "{1, 2, 3}"
+```
 
-#####__TryGetValueFromNestedDictionaries:var[]..[](list: var[]..[], key: var[]..[])`
+```
+a = {"foo" : 1, 0 : 3};
+b = ToString(a); // "{"foo" : 1, 0 : 3}"
+```
 
-Recursively iterate all dictionary elements in the specified list and returns values associated with the specified key.
+```
+a = 1;
+b = ToString(a); // "1"
+```
