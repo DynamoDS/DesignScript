@@ -219,7 +219,7 @@ The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [repl
 
 #### Dynamic list
 
-The list in DesignScript is dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
+Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
 x = {1, 2, 3};
@@ -227,9 +227,9 @@ x[5] = 4;      // x = {1, 2, 3, null, null, 4};
 ```
 
 
-#### Use as a dictionary
+#### Use as a list
 
-List in DesignScript is just a special case of dictionary whose keys are integers. When indexing a list, the type of key could be any type. For example:
+A list is just a special case of list whose keys are integers. When indexing a list, the type of key could be any type. For example:
 
 ```
 x = {1, 2, 3};
@@ -238,7 +238,7 @@ x[false] = 5;
 ```
 
 
-When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys. 
+When a list is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys. 
 
 ### Type conversion rules(TBD)
 
@@ -680,7 +680,7 @@ List access expression is of the form
 a[x]
 ```
 
-"x" could be integer value or a key of any kind of types (if “a” is a [dictionary](#heading=h.x6hkvoejht8r)). 
+"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)). 
 
 The following rules apply:
 
@@ -1151,227 +1151,162 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments �
 
 ## Built-in functions
 
-#####AllFalse:bool(list: var[]..[])`
+### Types
 
-Checks if all elements in the specified list are false.
+##### `NameOf(value : var[]..[]) : string`
 
-#####AllTrue:bool(list: var[]..[])`
+Get the name of the type of a value.
 
-Checks if all elements in the specified list are true.
+Examples:
 
-#####Average:double(list: int[]..[])`
+```
+a = 1;
+b = NameOf( a ); // "number"
+```
 
-Returns average value of all elements in the specified list.
+```
+a = {};
+b = NameOf( a ); // "dictionary"
+```
 
-#####Break()`
+### Dictionaries
 
-Notifies debugger to break at the point.
+#### Modification
 
-#####Concat:var[]..[](list1: var[]..[], list2: var[]..[])`
+##### `Append(dictionary : var[]..[], value: var[]..[]) : var[]..[] `
 
-Concats list1 and list2 and returns a new list.
+`Append` creates a new `dictionary` with a new element inserted at the end. If the `dictionary` is not array-like, returns an `error`.
 
-#####Contains:bool(list: var[]..[], element: var)`
+Examples:
 
-Checks if the specified element is in the specified list.
+```
+a = {1, 2, 3};
+b = Append(a, 4); // {1,2,3,4}
+```
 
-#####Contains:bool(list: var[]..[], element: var[]..[])`
+##### `Set(dictionary : var[]..[], key : var, value : var) : var[]..[]`
 
-Checks if the specified element is in the specified list.
+`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not an non-negative integer `number` or `string`, returns an `error`.
 
-#####ContainsKey:bool(list: var[]..[], key: var)`
+Examples:
 
-Checks if the specified key is present in the specified dictionary.
+```
+a = {1, 2, 3};
+b = Set(a, 0, 10); // {10,2,3}
+```
 
-#####Count:int(list: var[]..[])`
+```
+a = {"foo" : 1};
+b = Set(a, "bar", 2); // {"foo" : 1, "bar" : 2}
+```
 
-Returns the number of elements in the specified list.
+##### `Remove(dictionary : var[]..[], index: int) : var[]..[]`
 
-#####CountTrue:int(list: var[]..[])`
+`Remove` removes the value at the specified key of the `dictionary`. If the key is not present, returns the `dictionary` unmodified.
 
-Returns the number of true values in the specified list.
+Examples:
 
-#####CountFalse:int(list: var[]..[])`
+```
+a = {1, 2, 3};
+b = Remove(a, 0); // {1 : 2, 2 : 3}
+```
 
-Returns the number of falsevalues in the specified list.
+```
+a = {"foo" : "bar"};
+b = Remove(a, "foo"); // {}
+```
 
-#####Equals:bool(objectA: var, objectB: var)`
+```
+a = {};
+b = Remove(a, "foo"); // {}
+```
 
-Determines whether two object instances are equal.
+#### Query
 
-#####Evaluate:var[]..[](fptr: fptr, params: var[]..[], unpack: bool)`
+##### `Count(dictionary : var[]..[]) : number`
 
-For internal use. Evaluates a function pointer with specified params. 
+Returns the number of elements in the specified `dictionary`.
 
-#####Flatten:var[](list:var[]..[])`
+Examples:
 
-Returns the flattened 1D list of the multi-dimensional input list.
+```
+a = {1, 2, 3};
+b = Count(a); // 3
+```
 
-#####GetElapsedTime:int()`
+```
+a = {"foo" : 1, 0 : 3};
+b = Count(a); // 3
+```
 
-Returns elapsed milliseconds in the virtual machine
+##### `Keys(dictionary : var[]..[]) : var[]`
 
-#####GetKeys:var[]..[](list: var[]..[])`
+Gets all keys from the specified dictionary and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
 
-Gets all keys from the specified dictionary.
+Examples:
 
-#####GetValues:var[]..[](list: var[]..[])`
+```
+a = {1, 2, 3};
+b = Keys(a); // {0,1,2}
+```
 
-Gets all values stored in the specified dictionary and for a simple list it returns all elements.
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {"foo", 0}
+```
 
-#####IndexOf:int(list: var[]..[], element: var[]..[])`
+##### `Values(dictionary : var[]..[]) : var[]`
 
-Returns the index of the member in the list.
+Gets all values stored in the specified dictionary. The values could be of any type. The order the values are provided is not defined.
 
-#####Insert:var[]..[](list: var[]..[], element: var, index: int)`
+Examples:
 
-Inserts an element into a list at specified index.
+```
+a = {1, 2, 3};
+b = Keys(a); // {1, 2, 3}
+```
 
-#####Insert:var[]..[](list: var[]..[], element: var[]..[], index: int)`
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {1, 3}
+```
 
-Inserts an element into a list at specified index.
+### Other
 
-#####IsRectangular: bool(list: var[]..[])`
+##### `Equals(varA: var, varB: var) `
 
-Checks if each of rows in multidimensional  list has the same number of elements.
+Determines whether two values are equal via a shallow comparison.
 
-#####ImportFromCSV:double[][](filePath: string )`
+Examples:
 
-Imports data from a text file containing comma separated values into two-dimensional list.
+```
+a = {1, 2, 3};
+b = {1, 2, 3};
+c = Equals(a, b); // true
+```
 
-#####ImportFromCSV:double[][](filePath: string, transpose:bool)`
+```
+a = {"foo" : 1, 0 : 3};
+b = Keys(a); // {"foo", 0}
+```
 
-Imports data from a text file containing comma separated values into two-dimensional list and 
-
-also transpose the output list if specified.
-
-#####IsHomogeneous: bool(list: var[]..[])`
-
-Checks if all the elements in the specified list are of the same type.
-
-#####IsUniformDepth:bool(list: var[]..[])`
-
-Checks if the list has a uniform depth.
-
-#####Map:double(rangeMin: double, rangeMax: double, inputValue: double)`
-
-Maps a value into an input range.
-
-#####MapTo:double(rangeMin: double, rangeMax: double, inputValue: double, targetRangeMin: double, targetRangeMax:double)`
-
-Maps a value from one range to another range.
-
-#####NormalizeDepth:var[]..[](list: var[]..[])`
-
-Returns a list with uniform depth as specified by the input depth.
-
-#####NormalizeDepth:var[]..[](list: var[]..[], rank: var)`
-
-Return multidimensional list according to the rank given.
-
-#####Print(msg: var)`
-
-Print msg to the console. 
-
-#####Rank(list: var[]..[])`
-
-Counts the maximal rank of the specified list. 
-
-#####Remove:var(list: var[]..[], index: int)`
-
-Removes element at the specified index of the list.
-
-#####RemoveDuplicates:var[]..[](list: var[]..[])`
-
-Removes duplicate elements in the specified list.
-
-#####RemoveNulls:var[]..[](list: var[]..[])`
-
-Removes null elements from the specified list.
-
-#####RemoveIfNot:var[]..[](list: var[]..[], type:string)`
-
-Removes the members of the list which are not members of the specified type.
-
-#####RemoveKey:bool(list:var[]..[], key: var)`
-
-Returns true if the specified key is removed from the specified list; otherwise returns false.
-
-#####Reorder:var[](list: var[], indice:var[])`
-
-Reorders the list using the specified indices.
-
-#####Reverse:var[]..[](list: var[]..[])`
-
-Reverses the specified list. 
-
-#####SetDifference:var[](list1: var[], list2: var[])`
-
-Returns objects that are included in list1 but not excluded in list2
-
-#####SetIntersection:var[](list1: var[], list2: var[])`
-
-Produces the set intersection of two lists.
-
-#####SetUnion:var[](list1: var[], list2: var[])`
-
-Produces the set union of two sequences by using the default equality comparer.
-
-#####Sleep(x: int)`
-
-Put the virtual machine to sleep for x milliseconds. 
-
-#####SomeFalse:bool(list: var[]..[])`
-
-Returns true if any element in the list is false
-
-#####SomeNulls:bool(list: var[]..[])`
-
-Returns true if any element in the list is null.
-
-#####SomeTrue:bool(list: var[]..[])`
-
-Returns true if any element in the list is true.
-
-#####Sort:int[](list: int[])`
-
-Obsolete. 
-
-#####SortIndexByValue:int[](list: double[])`
-
-Sorts a specified list by values of its members in ascending order.
-
-#####SortIndexByValue:int[](list: double[], ascending: bool)`
-
-Sorts a specified list by values of its members in either descending or ascending order.
-
-#####Sum:int(list: int[]..[])`
-
-Returns the sum of all elements in the specified list.
-
-#####ToString:string(object: var[]..[])`
-
-Obsolete. Use __ToStringFromObject()`or __ToStringFromArray()`instead. Returns object in string representation. 
-
-#####Transpose:var[]..[](list: var[]..[])`
-
-Swaps rows and columns in a list of lists. If there are some rows that are shorter than others, 
-
-null values are inserted as placeholders in the result list such that it is always rectangular.
-
-#####__GC()`
-
-Force garbage collection. 
-
-#####__ToStringFromObject:string(object: var)`
+##### `ToString(object: var[]..[])`
 
 Returns object in string representation.
 
-#####__ToStringFromArray:string(list: var[])`
+Examples:
 
-Returns list in string representation.
+```
+a = {1, 2, 3};
+c = ToString(a, b); // "{1, 2, 3}"
+```
 
-#####__TryGetValueFromNestedDictionaries:var[]..[](list: var[]..[], key: var[]..[])`
+```
+a = {"foo" : 1, 0 : 3};
+b = ToString(a); // "{"foo" : 1, 0 : 3}"
+```
 
-Recursively iterate all dictionary elements in the specified list and returns values associated with the specified key.
-
+```
+a = 1;
+b = ToString(a); // "1"
+```
