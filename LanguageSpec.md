@@ -1153,20 +1153,20 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments â€
 
 ### Types
 
-##### `NameOf(value : var[]..[]) : string`
+##### `TypeOf(value : var[]..[]) : string`
 
-Get the name of the type of a value.
+Get a `string` representation of the type of a value.
 
 Examples:
 
 ```
 a = 1;
-b = NameOf( a ); // "number"
+b = TypeOf( a ); // "number"
 ```
 
 ```
 a = {};
-b = NameOf( a ); // "dictionary"
+b = TypeOf( a ); // "dictionary"
 ```
 
 ### Dictionaries
@@ -1186,7 +1186,7 @@ b = Append(a, 4); // {1,2,3,4}
 
 ##### `Set(dictionary : var[]..[], key : var, value : var) : var[]..[]`
 
-`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not an non-negative integer `number` or `string`, returns an `error`.
+`Set` sets a key in a `dictionary`, returning a new `dictionary`. If the key is not present, it is added. If the key is not a non-negative integer `number` or `string`, returns an `error`.
 
 Examples:
 
@@ -1241,7 +1241,7 @@ b = Count(a); // 3
 
 ##### `Keys(dictionary : var[]..[]) : var[]`
 
-Gets all keys from the specified dictionary and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
+Gets all keys from the specified `dictionary` and returns them as a list-like `dictionary`. The keys could be strings or numbers. The order the keys are provided is not defined.
 
 Examples:
 
@@ -1257,7 +1257,7 @@ b = Keys(a); // {"foo", 0}
 
 ##### `Values(dictionary : var[]..[]) : var[]`
 
-Gets all values stored in the specified dictionary. The values could be of any type. The order the values are provided is not defined.
+Gets all values stored in the specified `dictionary`. The values could be of any type. The order the values are provided is not defined.
 
 Examples:
 
@@ -1268,27 +1268,10 @@ b = Keys(a); // {1, 2, 3}
 
 ```
 a = {"foo" : 1, 0 : 3};
-b = Keys(a); // {1, 3}
+b = Keys(a); // {"foo", 0}
 ```
 
 ### Other
-
-##### `Equals(varA: var, varB: var) `
-
-Determines whether two values are equal via a shallow comparison.
-
-Examples:
-
-```
-a = {1, 2, 3};
-b = {1, 2, 3};
-c = Equals(a, b); // true
-```
-
-```
-a = {"foo" : 1, 0 : 3};
-b = Keys(a); // {"foo", 0}
-```
 
 ##### `ToString(object: var[]..[])`
 
