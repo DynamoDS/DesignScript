@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is the specification for DesignScript programming language. DesignScript is dynamic, garbage-collected and associative language, and provides strong support for visual programming environment. 
+This is the specification for DesignScript programming language. DesignScript is a dynamic language and provides support for flow-based programming environment.
 
 The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
@@ -23,7 +23,7 @@ Example:
 ```
 x = 1; // single line comment
 
-/* 
+/*
    Block comments
 */
 y = 2;
@@ -31,11 +31,11 @@ y = 2;
 
 ### Semicolons
 
-Semicolon ";" is used as a terminator of a statement. 
+Semicolon ";" is used as a terminator of a certain class of statements.
 
 ### Identifiers
 
-Identifiers in DesignScript name variables, types, functions and namespaces. 
+Identifiers in DesignScript name variables, types, functions and namespaces.
 
 ```
 Identifier =
@@ -61,12 +61,22 @@ Identifier =
 
 ### Keywords
 
-The following words are reserved as being a keywords
+The following words are reserved as keywords
 
 ```
-break, continue, def, else, elseif, for, from, if, import, in, return, while
+break, continue, def, else, elseif, for, if, in, return, while, imperative
 ```
 
+### Operators
+
+The following character sequences represent operators.
+
+```
++    -    *    /   %
+==   <    >    <=  >=  !=
+&&   ||   !
+..   @    @@  
+```
 
 ### Bool literal
 
@@ -74,58 +84,34 @@ break, continue, def, else, elseif, for, from, if, import, in, return, while
 true, false
 ```
 
+### Number literal
 
-### Integer literal
-
-Integer literal represents an integer constant. It is in decimal base, or in hexadecimal base. 
+DesignScript doesn't have integer type. The range of number is defined by the range of double-precision floating-point.
 
 ```
 digit = ‘0’..’9’
 
-hex_digit = ‘0’..’9’ + ‘a’..’f’ + ‘A’..’F’
+decimal_format = digit { digit }
 
-decimal_number = digit { digit }
-
-hexadecimal_number = ("0x" | “0X”) hex_digit { hex_digit }
-```
-
-
-In DesignScript, the range of integer value is -263 - 263 - 1.
-
-Example:
-
-```
-123;
-0xff;  // 255
-0XFF;  // 255
-```
-
-### Floating-point literal
-
-Floating-point literal represent a floating-point constant in decimal base.
-
-```
-floating_point =
+floating_point_format =
     digit { digit } ‘.’ [digit { digit }] [ exponent ]
-  | digit { digit } exponent 
+  | digit { digit } exponent
   | ‘.’ digit { digit } [ exponent ]
 
 exponent = (‘E’ | ‘e’) [‘+’ | ‘-’] digit { digit }
-```
 
+number = decimal_format | floating_point_format
+```
 
 Example:
 
 ```
-1.2e3;    // 1200.0;
-1.234;
-.123;     // 0.123
+123    1.2e3    1.234    .123
 ```
-
 
 ### String literal
 
-String literal represents a string constant. It is obtained by putting character sequence between double quote ("). 
+String literal represents a string constant. It is obtained by putting character sequence between double quote (").
 
 Any character can be in the sequence except newline and double quote ("). Backslash character in the sequence could be combined with the next character to become an escape character (NOTE:  https://en.wikipedia.org/wiki/Escape_character):
 
@@ -149,7 +135,7 @@ Example:
 
 ### Primitive Types
 
-The type system in DesignScript is dynamic and object-oriented. DesignScript supports following primitive types
+The type system in DesignScript is dynamic. DesignScript supports following primitive types
 
 <table>
   <tr>
@@ -163,12 +149,7 @@ The type system in DesignScript is dynamic and object-oriented. DesignScript sup
     <td>""</td>
   </tr>
   <tr>
-    <td>integer</td>
-    <td>-2e63 - 2e63 - 1</td>
-    <td>0</td>
-  </tr>
-  <tr>
-    <td>floating-point</td>
+    <td>number</td>
     <td>IEEE 754 double-precision</td>
     <td>0</td>
   </tr>
@@ -190,55 +171,38 @@ The type system in DesignScript is dynamic and object-oriented. DesignScript sup
 </table>
 
 
-The default value of all other types is "null". 
-
-### User defined types
-
-User defined types are supported through [class mechanism](#heading=h.ussn8fy27o8t) . Objects, instances of classes, may contain
-
-* Properties
-* Instance methods
-* Static members
-* Constructors
-
-Only single inheritance is allowed in DesignScript.
+The default value of all other types is "null".
 
 ### List
 
+In DesignScript, List is used to keep a collection of object. It is *immutable*, that is, we could use index to get value that stored in a list, but we should always call `Set(list, index, value)` to get a new list which stores new value at specified location.
+
 #### Rank
 
-If a type has rank suffix, it declares a list. The number of "[]" specifies the number of rank. “[]..[]” specifies arbitrary rank. For example,
+If a type has rank suffix, it declares a list. The number of "[]" specifies rank of this list. “[]..[]” specifies arbitrary rank. For example,
 
 ```
-int[]     // an integer list whose rank is 1
-int[][]   // an integer list whose rank is 2
-int[]..[] // an integer list with arbitrary rank
+number[]     // a number list whose rank is 1
+number[][]   // a number list whose rank is 2
+number[]..[] // a number list with arbitrary rank
 ```
 
 The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [replication guide](#heading=h.f51u2x6ertfi) work in function dispatch.
 
-#### Dynamic list
+#### List as dictionary
 
+List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key. For example:
 Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
 x = {1, 2, 3};
-x[5] = 4;      // x = {1, 2, 3, null, null, 4};
+
+y = Set(x, 5, "foo")
+length = len(x);    // length == 3;
+v = y[5];           // v == "foo"
 ```
 
-
-#### Use as a list
-
-A list is just a special case of list whose keys are integers. When indexing a list, the type of key could be any type. For example:
-
-```
-x = {1, 2, 3};
-x["foo"] = 4;      
-x[false] = 5;
-```
-
-
-When a list is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys. 
+When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys.
 
 ### Type conversion rules(TBD)
 
@@ -246,17 +210,16 @@ Following implicit type conversion rules specify the result of converting one ty
 
 #### Non-list case
 
-"yes" means convertible, “no” means no convertible. 
+"yes" means convertible, “no” means no convertible.
 
 <table>
   <tr>
-	<td>To From</td>
+	<td>From To</td>
     <td>var</td>
-    <td>int</td>
-    <td>double</td>
+    <td>number</td>
     <td>bool</td>
     <td>string</td>
-    <td>user defined</td>
+    <td>ffi type</td>
   </tr>
   <tr>
     <td>var</td>
@@ -265,21 +228,10 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>no</td>
     <td>no</td>
     <td>no</td>
-    <td>no</td>
   </tr>
   <tr>
-    <td>int</td>
+    <td>number</td>
     <td>yes</td>
-    <td>yes</td>
-    <td>yes</td>
-    <td>x != 0</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>double</td>
-    <td>yes</td>
-    <td>warning</td>
     <td>yes</td>
     <td>x != 0 && x != NaN</td>
     <td>no</td>
@@ -289,7 +241,6 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>bool</td>
     <td>yes</td>
     <td>no</td>
-    <td>no</td>
     <td>yes</td>
     <td>yes</td>
     <td>no</td>
@@ -298,34 +249,31 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>string</td>
     <td>yes</td>
     <td>no</td>
-    <td>no</td>
     <td>x != ""</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>user defined</td>
+    <td>ffi type</td>
     <td>yes</td>
     <td>no</td>
+    <td>x != ""</td>
+    <td>yes</td>
     <td>no</td>
-    <td>x != null</td>
-    <td>no</td>
-    <td>Covariant</td>
   </tr>
 </table>
 
 
-#### Array promotion
+#### Rank promotion
 
 <table>
   <tr>
-    <td>To From</td>
+    <td>From To</td>
     <td>var[]</td>
-    <td>int[]</td>
-    <td>double[]</td>
+    <td>number[]</td>
     <td>bool[]</td>
     <td>string[]</td>
-    <td>user defined[]</td>
+    <td>ffi type []</td>
   </tr>
   <tr>
     <td>var</td>
@@ -334,21 +282,10 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>no</td>
     <td>no</td>
     <td>no</td>
-    <td>no</td>
   </tr>
   <tr>
-    <td>int</td>
+    <td>number</td>
     <td>yes</td>
-    <td>yes</td>
-    <td>yes</td>
-    <td>x != 0</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>double</td>
-    <td>yes</td>
-    <td>warning</td>
     <td>yes</td>
     <td>x != 0 && x != NaN</td>
     <td>no</td>
@@ -358,7 +295,6 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>bool</td>
     <td>yes</td>
     <td>no</td>
-    <td>no</td>
     <td>yes</td>
     <td>yes</td>
     <td>no</td>
@@ -366,34 +302,31 @@ Following implicit type conversion rules specify the result of converting one ty
   <tr>
     <td>string</td>
     <td>yes</td>
-    <td>no</td>
     <td>no</td>
     <td>x != ""</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>user defined</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>no</td>
-    <td>x != null</td>
-    <td>no</td>
-    <td>Covariant</td>
-   </tr>
+    <td>ffi type</td>
+    <td>na</td>
+    <td>na</td>
+    <td>na</td>
+    <td>na</td>
+    <td>na</td>
+  </tr>
 </table>
 
-#### Array demotion
+#### Rank demotion
 
 <table>
   <tr>
-    <td>To From</td>
+    <td>From To</td>
     <td>var</td>
-    <td>int</td>
-    <td>double</td>
+    <td>number</td>
     <td>bool</td>
     <td>string</td>
-    <td>user defined</td>
+    <td>ffi type</td>
   </tr>
   <tr>
     <td>var[]</td>
@@ -402,11 +335,9 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>no</td>
     <td>no</td>
     <td>no</td>
-    <td>no</td>
   </tr>
   <tr>
-    <td>int[]</td>
-    <td>yes</td>
+    <td>number[]</td>
     <td>yes</td>
     <td>yes</td>
     <td>x != 0</td>
@@ -414,18 +345,8 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>no</td>
   </tr>
   <tr>
-    <td>double[]</td>
-    <td>yes</td>
-    <td>warning</td>
-    <td>yes</td>
-    <td>x != 0 && x != NaN</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
     <td>bool[]</td>
     <td>yes</td>
-    <td>no</td>
     <td>no</td>
     <td>yes</td>
     <td>yes</td>
@@ -435,15 +356,13 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>string[]</td>
     <td>yes</td>
     <td>no</td>
-    <td>no</td>
     <td>x != ""</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>user defined[]</td>
+    <td>ffi type[]</td>
     <td>yes</td>
-    <td>no</td>
     <td>no</td>
     <td>x != null</td>
     <td>no</td>
@@ -453,19 +372,23 @@ Following implicit type conversion rules specify the result of converting one ty
 
 ## Variables
 
-### Dynamic
+A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Unlike other languages, variable in DesignScript is immutable. That is, a variable is only allowed to be assigned once. For example,
 
-Variables in DesignScript are dynamic. It is free to assign any kinds of objects to any variable, and the type of a variable is totally run-time dependent. 
+```
+a = 1;
+a = 2; // error: double assignment
+```
 
-### List Immutability
+All variables should be defined before being used. For example,
 
-Lists in DesignScript are immutable. That is, when copying a list from one variable to the other variable, it is deep copy operation: all elements in the list are copied as well. 
+```
+b = a; // error: "a" is not defined yet
+a = 1;
+```
 
 ### Scope
 
-DesignScript uses block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope), and blocks are either functions or language blocks.Because of associativity, a variable could be used before it is defined, the DesignScript virtual machine will ensure to propagate the value update to all its references. 
-
-Example:
+Unlike block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope) in most programming language, DesignScript only looks up variables defined in current block, and a block could be either function or language block.
 
 ```
 x = 1;
@@ -474,28 +397,15 @@ y = 2;
 def foo(x) {
     z = 3;          // "z" is local variable
     return = x + y; // “x” is parameter
-                    // “y” is defined in the global associative language block
+                    // waring: “y” is not defined
 }
 
-[Imperative] {
-    x = 3;          // update the global “x”
-    m = n;          // “m”, “n” are local variables. It is fine to use “n”
-    n = 4;          // the VM ensures “m” finally is 4
-    return = x + y + m;
+[Imperative](x) {
+    x = 3;              // error: "x" is not allowed to be assigned twice
+    n = 4;              // the VM ensures “m” finally is 4
+    return = x + y + m; // error: "y" is not defined yet
 }
 ```
-
-### Scope resolution
-
-The search order of an identifier is
-
-* Innermost scope.
-
-* Each progressive outer scope, including class scope.
-
-* Classes that the current class extends.
-
-* The global scope.
 
 ## Declarations
 
@@ -505,26 +415,26 @@ The search order of an identifier is
 FunctionDeclaration =
     "def" identifier [“:” TypeSpecification] ParameterList StatementBlock.
 
-ParameterList = 
+ParameterList =
     “(“ [Parameter {“,” Parameter}] “)”
 
-Parameter = 
+Parameter =
     identifier [“:” TypeSpecification] [DefaultArgument]
 
-StatementBlock = 
+StatementBlock =
     “{“ { Statement } “}”
 ```
 
 The return type of function is optional. By default the return type is var. If the return type is specified, [type conversion](#heading=h.l30kv4fz02il) may happen. It is not encouraged to specify return type unless it is necessary.
 
-Function must be defined in the global [associative language block](#heading=h.4hx9oahduirh).
+Function must be defined in the global scope.
 
-For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that [replication and replication guide](#heading=h.f51u2x6ertfi) will work as desired. For example, if a parameter’s type is var[]..[] ([arbitrary rank](#heading=h.x5qwed3vbjgx)), it means no replication on this parameter. 
+For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that [replication and replication guide](#heading=h.f51u2x6ertfi) will work as desired. For example, if a parameter’s type is var[]..[] ([arbitrary rank](#heading=h.x5qwed3vbjgx)), it means no replication on this parameter.
 
 Example:
 
 ```
-def foo:var(x:int[]..[], y:int = 3)
+def foo:var(x:number[]..[], y:number = 3)
 {
     return = x + y;
 }
@@ -532,7 +442,7 @@ def foo:var(x:int[]..[], y:int = 3)
 
 #### Default parameters
 
-Function declaration allows to have default parameter, but with one restriction: all default parameters should be the rightmost parameters. 
+Function declaration allows to have default parameter, but with one restriction: all default parameters should be the rightmost parameters.
 
 For example:
 
@@ -552,27 +462,7 @@ def bar(x = 1, y, z = 2)
 
 #### Function overloads
 
-DesignScript supports function overload, i.e., functions with a same name but with different types/number of parameters, but which function will be called finally is totally run-time dependent,, especially if [replication ](#heading=h.f51u2x6ertfi)happens. DesignScript virtual machine will try to find out the best match one based on the type of arguments and the type of all parameters of all function candidates. 
-
-Following code shows a function overload example:
-
-```
-def foo(x: int, y:int)
-{
-    return = x + y;
-}
-
-def foo(x: double, y: double)
-{
-    return = x * y;
-}
-
-// will call foo(x:int, y:int)
-r1 = foo(2, 3);
-
-// will call foo(x:double, y:double)
-r2 = foo(2.1, 3.2);
-```
+Like most dynamic languages, DesignScript doesn't supports function overload.
 
 ## Expressions
 
@@ -603,7 +493,7 @@ There are three forms of range expressions:
 
     * If start_value < end_value, it generates a list in ascendant order which starts at start_value, and the last value < end_value, the increment is 1
 
-    * If start_value > end_value, it generates a list in descendent order which starts at start_value and the last value >= end_value, the increment is -1. 
+    * If start_value > end_value, it generates a list in descendent order which starts at start_value and the last value >= end_value, the increment is -1.
 
 * start_value..#number_of_elements..increment: it generates a list that contains number_of_elements elements. Element starts at start_value and the increment is increment.
 
@@ -611,7 +501,8 @@ There are three forms of range expressions:
 
 Example:
 
-```1..5;       // {1, 2, 3, 4, 5}
+```
+1..5;       // {1, 2, 3, 4, 5}
 
 5..1;       // {5, 4, 3, 2, 1}
 
@@ -634,7 +525,6 @@ Range expression  is handled specially for strings with single character. For ex
 “a”..”g”..#3; // {“a”, “d”, “g”}
 ```
 
-
 ### Inline conditional expression
 
 ```
@@ -646,7 +536,7 @@ The first expression in inline conditional expression is condition expression wh
 
 ```
 x = 2;
-y = (x % 2 == 0) ? "foo" : 21; 
+y = (x % 2 == 0) ? "foo" : 21;
 ```
 
 
@@ -670,7 +560,7 @@ x.y.z
 ```
 
 
-"y" and “z” could be properties, or member functions. If they are not accessible, null will be returned. 
+"y" and “z” could be properties, or member functions. If they are not accessible, null will be returned.
 
 ### List access expression
 
@@ -680,13 +570,13 @@ List access expression is of the form
 a[x]
 ```
 
-"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)). 
+"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)).
 
 The following rules apply:
 
 * If it is just getting value, if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, for example the rank of “a” is 2 but the expression is a[x][y][z], there will be a “IndexOutOfRange” warning and null will be returned.
 
-* If it is assigning a value to the list,  if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, “a” will be extended or its dimension will promoted so that it is able to accommodate the value. For example, 
+* If it is assigning a value to the list,  if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, “a” will be extended or its dimension will promoted so that it is able to accommodate the value. For example,
 
 ```
 a = 1;
@@ -719,7 +609,7 @@ The following operators are supported in DesignScript:
 ```
 
 
-All operators support replication. Except unary operator "!", all other operators also support replication guide. That is, the operands could be appended replication guides. 
+All operators support replication. Except unary operator "!", all other operators also support replication guide. That is, the operands could be appended replication guides.
 
 ```
 x = {1, 2, 3};
@@ -768,13 +658,11 @@ Precedence</td>
   </tr>
 </table>
 
-
 ### Arithmetic operators
 
 ```
 +, -, *, /, %
 ```
-
 
 Normally the operands are either integer value or floating-point value. "+" can be used as string concatenation:
 
@@ -784,13 +672,11 @@ s2 = “Script”;
 s = s1 + s2;  // “DesignScript”
 ```
 
-
 ### Comparison operators
 
 ```
 >, >=, <, <=, ==, !=
 ```
-
 
 ### Logical operators
 
@@ -798,14 +684,13 @@ s = s1 + s2;  // “DesignScript”
 &&, ||, !
 ```
 
-
 The operand should be bool type; otherwise type conversion will be incurred.
 
 ## Statements
 
 ### Empty statements
 
-Empty statement is 
+Empty statement is
 
 ```
 ;
@@ -817,7 +702,7 @@ Empty statement is
 ExpressionStatement = Expression ";"
 ```
 
-Expression statements are expressions without assignment. 
+Expression statements are expressions without assignment.
 
 ### Assignment statement
 
@@ -844,7 +729,7 @@ ReturnStatement = "return" “=” Expression “;”
 ```
 
 
-A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function. 
+A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function.
 
 ### Break statement
 
@@ -853,7 +738,7 @@ BreakStatement = "break" “;”
 ```
 
 
-A "break" statement terminates the execution of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop. 
+A "break" statement terminates the execution of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
 
 ### Continue statement
 
@@ -870,7 +755,7 @@ A "continue" statement begins the next iteration of the innermost “[for](#head
 
 ```
 IfStatement =
-    "if" “(” Expression “)” StatementBlock 
+    "if" “(” Expression “)” StatementBlock
     { “elseif” “(” Expression “)” StatementBlock }
     [ “else” StatementBlock ]
 ```
@@ -908,7 +793,7 @@ Example:
 ```
 sum = 0;
 x = 0;
-while (x < 10) 
+while (x < 10)
 {
     sum = sum + x;
     x = x + 1;
@@ -918,7 +803,7 @@ while (x < 10)
 
 ### For statements
 
-"for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe). 
+"for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
 
 ```
 ForStatement = "for" “(” Identifier “in” Expression “)” StatementBlock
@@ -928,7 +813,7 @@ Example:
 
 ```
 sum = 0;
-for (x in 1..10) 
+for (x in 1..10)
 {
     sum = sum + x;
 }
@@ -939,7 +824,7 @@ for (x in 1..10)
 
 ### Default associative language block
 
-By default, all statements are in a default top [associative language block](#heading=h.4hx9oahduirh), so [associative update](#heading=h.1vv0i14ck6wu) is enabled by default. 
+By default, all statements are in a default top [associative language block](#heading=h.4hx9oahduirh), so [associative update](#heading=h.1vv0i14ck6wu) is enabled by default.
 
 Not like nested language block, there is no return statement in top language block: all statements will be executed sequentially to the last one.
 
@@ -949,7 +834,7 @@ Imperative language block provides a convenient way to use imperative semantics.
 
 The key differences between associative language block and imperative language block are:
 
-* "if", “for” and “while” statements are only available in imperative language block. 
+* "if", “for” and “while” statements are only available in imperative language blocks. 
 
 Example:
 
@@ -1004,17 +889,17 @@ There are two kinds of replication:
 
 * Zip replication: for multiple input lists, zip replication is about taking every element from each list at the same position and calling the function; the return value from each function call is aggregated and returned as a list. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with zip replication, it is equivalent to {f(x1, y1}, f(x2, y2), ..., f(xn, yn)}. As the lengths of input arguments could be different, zip replication could be
 
-    * Shortest zip replication: use the shorter length. 
+    * Shortest zip replication: use the shorter length.
 
     * Longest zip replication: use the longest length, the last element in the short input list will be repeated.
 
-	The default zip replication is the shortest zip replication; otherwise need to use replication guide 
+	The default zip replication is the shortest zip replication; otherwise need to use replication guide
 
 to specify the longest approach.
 
 * Cartesian replication: it is equivalent to nested loop in imperative language. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with cartesian replication and the cartesian indices are {0, 1}, which means the iteration over the first argument is the first loop, and the iteration over the second argument is the nested loop; it is equivalent to {f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}.
 
-Replication guide is used to specify the order of cartesian replication indices; the lower replication guide, the outer loop. If two replication guides are the same value, zip replication will be applied. 
+Replication guide is used to specify the order of cartesian replication indices; the lower replication guide, the outer loop. If two replication guides are the same value, zip replication will be applied.
 
 ```
 ReplicationGuide = "<" number [“L”] “>” {“<” number [“L”] “>”}
@@ -1055,7 +940,7 @@ r1 = add(xs, ys);
 r2 = add(xs, zs);
 
 // the longest zip replication should be specified through replication guide.
-// the application guides should be the same value; otherwise cartesian 
+// the application guides should be the same value; otherwise cartesian
 // replication will be applied
 // r3 = {6, 8, 9}
 r3 = add(xs<1L>, zs<1L>);
@@ -1071,7 +956,7 @@ r5 = add(xs<2>, ys<1>);
 
 Besides replication for explicit function call, replication and replication guide could also be applied to the following expressions:
 
-1. Binary operators like +, -, *, / and so on. All binary operators in DesignScript can be viewed as a function which accepts two parameters, and unary operator can be viewed as a function which accepts one parameters. Therefore, replication will apply to expression "xs + ys" if “xs” and “ys” are lists. 
+1. Binary operators like +, -, *, / and so on. All binary operators in DesignScript can be viewed as a function which accepts two parameters, and unary operator can be viewed as a function which accepts one parameters. Therefore, replication will apply to expression "xs + ys" if “xs” and “ys” are lists.
 
 2. Range expression.
 
@@ -1079,13 +964,13 @@ Besides replication for explicit function call, replication and replication guid
 
 4. Array indexing. For example, xs[ys] where ys is a list. Replication could apply to array indexing on the both sides of assignment expression. Note replication does not apply to multiple indices.
 
-5. Member access expression. For example, xs.foo(ys) where xs and ys are lists. Replication guide could be applied to objects and arguments. If xs is a list, xs should be a homogeneous list, i.e., all elements in xs are of the same type. 
+5. Member access expression. For example, xs.foo(ys) where xs and ys are lists. Replication guide could be applied to objects and arguments. If xs is a list, xs should be a homogeneous list, i.e., all elements in xs are of the same type.
 
 ### Function dispatch rule for replication and replication guide
 
-Using zip replication or cartesian replication totally depends on the specified replication guide, the types of input arguments and the types of parameters. Because the input argument could be a heterogenous list, the implementation will compute which replication combination will generate the shortest type conversion distance. 
+Using zip replication or cartesian replication totally depends on the specified replication guide, the types of input arguments and the types of parameters. Because the input argument could be a heterogenous list, the implementation will compute which replication combination will generate the shortest type conversion distance.
 
-Note if argument is jagged list, the replication result is undefined. 
+Note if argument is jagged list, the replication result is undefined.
 
 Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments “a1, a2, ..., an”, function dispatch rule is:
 
@@ -1114,7 +999,7 @@ Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments �
 
 	1. For any ri > 0, ri = ri - 1. If there are multiple reductions whose values are larger than or equal to 1, zip replication applies; otherwise cartesian replication applies.
 
-5. Combine the replications generated on step 3 and step 4, based on the input arguments and the signature of candidate functions, choose the best matched function and best replication strategy. During the process, if the type of parameter and the type of argument are different, the type distance score will be calculated. 
+5. Combine the replications generated on step 3 and step 4, based on the input arguments and the signature of candidate functions, choose the best matched function and best replication strategy. During the process, if the type of parameter and the type of argument are different, the type distance score will be calculated.
 
 ## Built-in functions
 
