@@ -6,7 +6,7 @@ This is the specification for DesignScript programming language. DesignScript is
 
 The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
-This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The latter is implementation dependent. 
+This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The latter is implementation dependent.
 
 ## Lexical elements
 
@@ -191,20 +191,21 @@ The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [repl
 
 #### List as dictionary
 
-List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key. For example:
+List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key.
+
 Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
 x = {1, 2, 3};
 
 y = Set(x, 5, "foo")
-length = len(x);    // length == 3;
+length = len(x);    // length == 6;
 v = y[5];           // v == "foo"
 ```
 
 When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys.
 
-### Type conversion rules(TBD)
+### Type conversion rules
 
 Following implicit type conversion rules specify the result of converting one type to another:
 
@@ -219,7 +220,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number</td>
     <td>bool</td>
     <td>string</td>
-    <td>ffi type</td>
+    <td>FFI type</td>
   </tr>
   <tr>
     <td>var</td>
@@ -233,7 +234,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number</td>
     <td>yes</td>
     <td>yes</td>
-    <td>x != 0 && x != NaN</td>
+    <td>no</td>
     <td>no</td>
     <td>no</td>
   </tr>
@@ -242,24 +243,24 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>yes</td>
     <td>no</td>
     <td>yes</td>
-    <td>yes</td>
+    <td>no</td>
     <td>no</td>
   </tr>
   <tr>
     <td>string</td>
     <td>yes</td>
     <td>no</td>
-    <td>x != ""</td>
+    <td>no</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>ffi type</td>
+    <td>FFI type</td>
     <td>yes</td>
     <td>no</td>
-    <td>x != ""</td>
-    <td>yes</td>
     <td>no</td>
+    <td>no</td>
+    <td>yes</td>
   </tr>
 </table>
 
@@ -273,7 +274,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number[]</td>
     <td>bool[]</td>
     <td>string[]</td>
-    <td>ffi type []</td>
+    <td>FFI type []</td>
   </tr>
   <tr>
     <td>var</td>
@@ -287,7 +288,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number</td>
     <td>yes</td>
     <td>yes</td>
-    <td>x != 0 && x != NaN</td>
+    <td>no</td>
     <td>no</td>
     <td>no</td>
   </tr>
@@ -296,87 +297,43 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>yes</td>
     <td>no</td>
     <td>yes</td>
-    <td>yes</td>
+    <td>no</td>
     <td>no</td>
   </tr>
   <tr>
     <td>string</td>
     <td>yes</td>
     <td>no</td>
-    <td>x != ""</td>
+    <td>no</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>ffi type</td>
-    <td>na</td>
-    <td>na</td>
-    <td>na</td>
-    <td>na</td>
-    <td>na</td>
-  </tr>
-</table>
-
-#### Rank demotion
-
-<table>
-  <tr>
-    <td>From To</td>
-    <td>var</td>
-    <td>number</td>
-    <td>bool</td>
-    <td>string</td>
-    <td>ffi type</td>
-  </tr>
-  <tr>
-    <td>var[]</td>
+    <td>FFI type</td>
     <td>yes</td>
     <td>no</td>
     <td>no</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>number[]</td>
-    <td>yes</td>
-    <td>yes</td>
-    <td>x != 0</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>bool[]</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>yes</td>
-    <td>yes</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>string[]</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>x != ""</td>
-    <td>yes</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>ffi type[]</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>x != null</td>
     <td>no</td>
     <td>Covariant</td>
-	</tr>
+  </tr>
 </table>
 
 ## Variables
 
-A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Unlike other languages, variable in DesignScript is immutable. That is, a variable is only allowed to be assigned once. For example,
+A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Variable in global scope is immutable. That is, a variable is only allowed to be assigned once. For example,
 
 ```
 a = 1;
 a = 2; // error: double assignment
+```
+
+But a variable is mutable in imperative block. For example,
+```
+[Imperative]
+{
+    x = 1;
+    x = 2; // OK
+}
 ```
 
 All variables should be defined before being used. For example,
@@ -388,7 +345,7 @@ a = 1;
 
 ### Scope
 
-Unlike block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope) in most programming language, DesignScript only looks up variables defined in current block, and a block could be either function or language block.
+Unlike block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope) in most programming language, DesignScript only looks up variables defined in current block, and a block could be either function or imperative block.
 
 ```
 x = 1;
@@ -397,13 +354,12 @@ y = 2;
 def foo(x) {
     z = 3;          // "z" is local variable
     return = x + y; // “x” is parameter
-                    // waring: “y” is not defined
+                    // error: “y” is not defined
 }
 
 [Imperative](x) {
-    x = 3;              // error: "x" is not allowed to be assigned twice
-    n = 4;              // the VM ensures “m” finally is 4
-    return = x + y + m; // error: "y" is not defined yet
+    x = 3;          // "x" is not the "x" defined outside.
+                    // OK to change its value
 }
 ```
 
@@ -436,7 +392,7 @@ Example:
 ```
 def foo:var(x:number[]..[], y:number = 3)
 {
-    return = x + y;
+    return x + y;
 }
 ```
 
@@ -462,20 +418,21 @@ def bar(x = 1, y, z = 2)
 
 #### Function overloads
 
-Like most dynamic languages, DesignScript doesn't supports function overload.
+Like most dynamic languages, DesignScript doesn't supports function overload. See FFI.
 
 ## Expressions
 
 ### List creation expression
 
 ```
-ListCreationExpression = "{“ [Expression { “," Expression } ] “}”
+ListCreationExpression = "{“ [[Expression ":"] Expression { “," [Expression ":"] Expression } ] “}”
 ```
 
 List creation expression is to create a list. Example:
 
 ```
 x = {{1, 2, 3}, null, {true, false}, "DesignScript"};
+y = {0:"foo", 1:"bar", "qux":"quz"};
 ```
 
 ### Range expression
@@ -551,18 +508,6 @@ z = {“ding”, “dang”, “dong”};
 r = x ? y : z;  // replicates, r = {“foo”, “dang”, “qux”}
 ```
 
-
-### Member access expression
-
-Member access expression is of the form
-
-```
-x.y.z
-```
-
-
-"y" and “z” could be properties, or member functions. If they are not accessible, null will be returned.
-
 ### List access expression
 
 List access expression is of the form
@@ -608,7 +553,6 @@ The following operators are supported in DesignScript:
 !         Logical not
 -         Negate
 ```
-
 
 All operators support replication. Except unary operator "!", all other operators also support replication guide. That is, the operands could be appended replication guides.
 
@@ -719,25 +663,23 @@ Flow statements change the execution flow of the program. A flow statement is on
 
 1. A [return ](#heading=h.xw8lqigquohf)statement.
 
-2. A [break ](#heading=h.wf15sn8vv9wg)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
+2. A [break ](#heading=h.wf15sn8vv9wg)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in imperative block.
 
-3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
+3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in imperative block.
 
 ### Return statement
 
 ```
-ReturnStatement = "return" “=” Expression “;”
+ReturnStatement = "return" Expression “;”
 ```
 
-
-A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function.
+A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost imperative block, and returns to the upper-level language block or function.
 
 ### Break statement
 
 ```
 BreakStatement = "break" “;”
 ```
-
 
 A "break" statement terminates the execution of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
 
@@ -747,12 +689,11 @@ A "break" statement terminates the execution of the innermost “[for](#heading=
 ContinueStatement = "continue" “;”
 ```
 
-
 A "continue" statement begins the next iteration of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
 
 ### If statement
 
-"if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).  
+"if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in imperative block.
 
 ```
 IfStatement =
@@ -782,7 +723,7 @@ else {
 
 ### While statement
 
-A "while" statement repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
+A "while" statement repeatedly executes a block until the condition becomes false. “while” statements are only valid in imperative block.
 
 ```
 WhileStatement = "while" “(” Expression “)” StatementBlock
@@ -804,7 +745,7 @@ while (x < 10)
 
 ### For statements
 
-"for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
+"for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in imperative block.
 
 ```
 ForStatement = "for" “(” Identifier “in” Expression “)” StatementBlock
@@ -823,27 +764,21 @@ for (x in 1..10)
 
 ## Language blocks
 
-### Default associative language block
+### Default block
 
-By default, all statements are in a default top [associative language block](#heading=h.4hx9oahduirh), so [associative update](#heading=h.1vv0i14ck6wu) is enabled by default.
+By default, all statements are in a default top block. No return statement is allowed in top block. The execution order of statements in top block is *not* guaranteed to be executed in sequential.
 
-Not like nested language block, there is no return statement in top language block: all statements will be executed sequentially to the last one.
+### Imperative block
 
-### Imperative language block
+Imperative block provides a convenient way to use imperative semantics. All statements in imperative block will be executed sequentially. Variables defined in imperative block is mutable. It is not allowed to nest an imperative block inside the other imperative block.
 
-Imperative language block provides a convenient way to use imperative semantics. Similar to nested associative language block, imperative language block executes all statements sequentially unless a statement is a [return statement](#heading=h.bhwa3rqti3pb) to return a value. Imperative language block can only be defined in the other associative language block, including the top associative language block.
-
-The key differences between associative language block and imperative language block are:
-
-* "if", “for” and “while” statements are only available in imperative language blocks. 
-
-Example:
+Examples of imperative block:
 
 ```
 x = 1;
 
-// define an imperative language block in the top associative language block
-y = [Imperative]
+// define an imperative block
+y = [Imperative](x)
 {
     if (x > 10) {
         return = 3;
@@ -858,9 +793,8 @@ y = [Imperative]
 
 def sum(x)
 {
-    // define an imperative language block inside a function, which is in global
-    // associative language block
-    return = [Imperative]
+    // define an imperative block inside a function
+    return = [Imperative](x)
     {
         s = 0;
         for (i in 1..x)
@@ -873,7 +807,7 @@ def sum(x)
 
 [Imperative]
 {
-    // invalid imperative language block
+    // invalid nested imperative block
     [Imperative]
     {
     }
@@ -898,7 +832,7 @@ There are two kinds of replication:
 
 to specify the longest approach.
 
-* Cartesian replication: it is equivalent to nested loop in imperative language. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with cartesian replication and the cartesian indices are {0, 1}, which means the iteration over the first argument is the first loop, and the iteration over the second argument is the nested loop; it is equivalent to {f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}.
+* Cartesian replication: it is equivalent to nested loop in imperative block. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with cartesian replication and the cartesian indices are {0, 1}, which means the iteration over the first argument is the first loop, and the iteration over the second argument is the nested loop; it is equivalent to {f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}.
 
 Replication guide is used to specify the order of cartesian replication indices; the lower replication guide, the outer loop. If two replication guides are the same value, zip replication will be applied.
 
@@ -964,8 +898,6 @@ Besides replication for explicit function call, replication and replication guid
 3. Inline conditional expression in the form of "xs ? ys : zs" where “xs”, “ys” and “zs” are lists.
 
 4. Array indexing. For example, xs[ys] where ys is a list. Replication could apply to array indexing on the both sides of assignment expression. Note replication does not apply to multiple indices.
-
-5. Member access expression. For example, xs.foo(ys) where xs and ys are lists. Replication guide could be applied to objects and arguments. If xs is a list, xs should be a homogeneous list, i.e., all elements in xs are of the same type.
 
 ### Function dispatch rule for replication and replication guide
 
