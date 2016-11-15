@@ -818,7 +818,7 @@ def sum(x)
 
 ### Replication and replication guide
 
-Replication is a way to express iteration in associative language block. It applies to a function call when the rank of input arguments exceeds the rank of parameters. In other words, a function may be called multiple times in replication, and the return value from each function call will be aggregated and returned as a list.
+Replication is a way to express iteration. It applies to a function call when the rank of input arguments exceeds the rank of parameters. In other words, a function may be called multiple times in replication, and the return value from each function call will be aggregated and returned as a list.
 
 There are two kinds of replication:
 
