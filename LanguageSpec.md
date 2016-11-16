@@ -187,7 +187,7 @@ number[][]   // a number list whose rank is 2
 number[]..[] // a number list with arbitrary rank
 ```
 
-The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [replication guide](#heading=h.f51u2x6ertfi) work in function dispatch.
+The rank of type decides how replication and replication guide work in function dispatch.
 
 #### List as dictionary
 
@@ -203,7 +203,7 @@ length = len(x);    // length == 6;
 v = y[5];           // v == "foo"
 ```
 
-When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys.
+When a dictionary is used in `in` clause of `for` loop, it returns all values associated with keys.
 
 ### Type conversion rules
 
@@ -390,7 +390,7 @@ The return type of function is optional. By default the return type is var. If t
 
 Function must be defined in the global scope.
 
-For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that [replication and replication guide](#heading=h.f51u2x6ertfi) will work as desired. For example, if a parameter’s type is `var[]..[]` ([arbitrary rank](#heading=h.x5qwed3vbjgx)), it means no replication on this parameter.
+For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that replication and replication guide will work as desired. For example, if a parameter’s type is `var[]..[]` (arbitrary rank), it means no replication on this parameter.
 
 For example:
 
@@ -513,26 +513,13 @@ r = x ? y : z;  // replicates, r = {“foo”, “dang”, “qux”}
 
 ### List access expression
 
-List access expression is of the form
+List access expression is a right-value expression and is of the form
 
 ```
-a[x]
+r = a[x];
 ```
 
-"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)).
-
-The following rules apply:
-
-* If it is just getting value, if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, for example the rank of “a” is 2 but the expression is a[x][y][z], there will be a “IndexOutOfRange” warning and null will be returned.
-
-* If it is assigning a value to the list,  if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, “a” will be extended or its dimension will promoted so that it is able to accommodate the value. For example,
-
-```
-a = 1;
-a[1] = 2;      // "a" will be promoted, a = {1, 2} now
-a[3] = 3;      // “a” will be extended, a = {1, 2, null, 3} now
-a[0][1] = 3;   // “a” will be promoted, a = {{1, 3}, 2, null, 3} now
-```
+where `x` could be any kind of value (if `a` is a list). It is not allowed to change the value of an element in a list in-place. Instead, use built-in function `Set()`.
 
 ### Operators
 
@@ -657,17 +644,17 @@ Expression statements are expressions without assignment.
 Assignment = Expression "=" ((Expression “;”) | LanguageBlock)
 ```
 
-The left hand side of "=" should be assignable. Typically, it is [member access expression](#heading=h.rf6u7s9js69k) or [array access expression](#heading=h.7iw1e1npd4z) or variable. If the left hand side is a variable which hasn’t been defined before, the assignment statement will define this variable.
+The left hand side of "=" should be a variable.
 
 ### Flow statements
 
 Flow statements change the execution flow of the program. A flow statement is one of the followings:
 
-1. A [return ](#heading=h.xw8lqigquohf)statement.
+1. A `return` statement.
 
-2. A [break ](#heading=h.wf15sn8vv9wg)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in imperative block.
+2. A `break` statement in the block of `for` or `while` statement in imperative block.
 
-3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in imperative block.
+3. A `continue` statement in the block of `for` or `while` statement in imperative block.
 
 ### Return statement
 
@@ -675,7 +662,7 @@ Flow statements change the execution flow of the program. A flow statement is on
 ReturnStatement = "return" Expression “;”
 ```
 
-A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost imperative block, and returns to the upper-level language block or function.
+A `return` statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost imperative block, and returns to the upper-level language block or function.
 
 ### Break statement
 
@@ -683,7 +670,7 @@ A "return" statement terminates the execution of the innermost function and retu
 BreakStatement = "break" “;”
 ```
 
-A "break" statement terminates the execution of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
+A `break` statement terminates the execution of the innermost `for` loop or `while` loop.
 
 ### Continue statement
 
@@ -691,11 +678,11 @@ A "break" statement terminates the execution of the innermost “[for](#heading=
 ContinueStatement = "continue" “;”
 ```
 
-A "continue" statement begins the next iteration of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
+A `continue` statement begins the next iteration of the innermost `for` loop or `while` loop.
 
 ### If statement
 
-"if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in imperative block.
+`if` statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in imperative block.
 
 ```
 IfStatement =
@@ -703,7 +690,6 @@ IfStatement =
     { “elseif” “(” Expression “)” StatementBlock }
     [ “else” StatementBlock ]
 ```
-
 
 For example:
 
@@ -725,12 +711,11 @@ else {
 
 ### While statement
 
-A "while" statement repeatedly executes a block until the condition becomes false. “while” statements are only valid in imperative block.
+A `while` statement repeatedly executes a block until the condition becomes false. `while` statements are only valid in imperative block.
 
 ```
 WhileStatement = "while" “(” Expression “)” StatementBlock
 ```
-
 
 Example:
 
@@ -747,7 +732,7 @@ while (x < 10)
 
 ### For statements
 
-"for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in imperative block.
+`for` iterates all values in `in` clause and assigns the value to the loop variable. The expression in `in` clause should return a list; if it is a singleton, it is a single statement evaluation. `for` statements are only valid in imperative block.
 
 ```
 ForStatement = "for" “(” Identifier “in” Expression “)” StatementBlock
