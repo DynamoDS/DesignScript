@@ -260,7 +260,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>no</td>
     <td>no</td>
     <td>no</td>
-    <td>yes</td>
+    <td>Covariant</td>
   </tr>
 </table>
 
@@ -345,7 +345,12 @@ a = 1;
 
 ### Scope
 
-Unlike block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope) in most programming language, DesignScript only looks up variables defined in current block, and a block could be either function or imperative block.
+The scope of a defined variable in DesignScript is limited to a block or a function where it is defined and is not extended to any nested block or any other function. A block could be the top level block or an imperative block.
+
+To pass a variable to a nested imperative block, the variable should be explicitly captured in block's capture list. To pass a variable to a function, the variable should be passed as an argument. In either case, the variable will be copied to maintain its immutability.
+
+For example,
+
 
 ```
 x = 1;
@@ -358,7 +363,7 @@ def foo(x) {
 }
 
 [Imperative](x) {
-    x = 3;          // "x" is not the "x" defined outside.
+    x = 3;          // "x" is not the "x" defined in outer block.
                     // OK to change its value
 }
 ```
@@ -381,13 +386,13 @@ StatementBlock =
     “{“ { Statement } “}”
 ```
 
-The return type of function is optional. By default the return type is var. If the return type is specified, [type conversion](#heading=h.l30kv4fz02il) may happen. It is not encouraged to specify return type unless it is necessary.
+The return type of function is optional. By default the return type is var. If the return type is specified, type conversion may happen. It is not encouraged to specify return type unless it is necessary.
 
 Function must be defined in the global scope.
 
-For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that [replication and replication guide](#heading=h.f51u2x6ertfi) will work as desired. For example, if a parameter’s type is var[]..[] ([arbitrary rank](#heading=h.x5qwed3vbjgx)), it means no replication on this parameter.
+For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that [replication and replication guide](#heading=h.f51u2x6ertfi) will work as desired. For example, if a parameter’s type is `var[]..[]` ([arbitrary rank](#heading=h.x5qwed3vbjgx)), it means no replication on this parameter.
 
-Example:
+For example:
 
 ```
 def foo:var(x:number[]..[], y:number = 3)
@@ -418,7 +423,7 @@ def bar(x = 1, y, z = 2)
 
 #### Function overloads
 
-Like most dynamic languages, DesignScript doesn't supports function overload. See FFI.
+DesignScript doesn't supports function overload.
 
 ## Expressions
 
@@ -473,7 +478,7 @@ Example:
 1..5..#3;   // {1, 3, 5}
 ```
 
-Range expression  is handled specially for strings with single character. For example, following range expressions are valid as well:
+Range expression is handled specially for strings with single character. For example, following range expressions are valid as well:
 
 ```
 "a"..”e”;     // {“a”, “b”, “c”, “d”, “e”}
@@ -489,14 +494,12 @@ Range expression  is handled specially for strings with single character. For ex
 InlineConditionalExpression = Expression ? Expression : Expression;
 ```
 
-
 The first expression in inline conditional expression is condition expression whose type is bool. If it is true, the value of "?" clause will be returned; otherwise the value of “:” clause will be returned. The types of expressions for true and false conditions are not necessary to be the same. Example:
 
 ```
 x = 2;
 y = (x % 2 == 0) ? "foo" : 21;
 ```
-
 
 Inline conditional expressions replicate on all three expressions. Example:
 
@@ -530,7 +533,6 @@ a[1] = 2;      // "a" will be promoted, a = {1, 2} now
 a[3] = 3;      // “a” will be extended, a = {1, 2, null, 3} now
 a[0][1] = 3;   // “a” will be promoted, a = {{1, 3}, 2, null, 3} now
 ```
-
 
 ### Operators
 
@@ -583,7 +585,7 @@ Precedence</td>
   </tr>
   <tr>
     <td>5</td>
-    <td>*, /, %</td>
+    <td>\*, /, %</td>
   </tr>
   <tr>
     <td>4</td>
@@ -764,9 +766,9 @@ for (x in 1..10)
 
 ## Language blocks
 
-### Default block
+### Top level block
 
-By default, all statements are in a default top block. No return statement is allowed in top block. The execution order of statements in top block is *not* guaranteed to be executed in sequential.
+By default, all statements are in top level block. No return statement is allowed in top level block. The execution order of statements in top level block is *not* guaranteed to be sequential. Besides, the execution order of statements in function is not guaranteed to be sequential as well.
 
 ### Imperative block
 
@@ -818,21 +820,19 @@ def sum(x)
 
 ### Replication and replication guide
 
-Replication is a way to express iteration. It applies to a function call when the rank of input arguments exceeds the rank of parameters. In other words, a function may be called multiple times in replication, and the return value from each function call will be aggregated and returned as a list.
+Replication may happen if the rank of input argument exceeds the rank of parameter in a function call. In this case, a function may be called multiple times, and return value from each function call will be aggregated into a returned list.
 
 There are two kinds of replication:
 
-* Zip replication: for multiple input lists, zip replication is about taking every element from each list at the same position and calling the function; the return value from each function call is aggregated and returned as a list. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with zip replication, it is equivalent to {f(x1, y1}, f(x2, y2), ..., f(xn, yn)}. As the lengths of input arguments could be different, zip replication could be
+* Zip replication: zip replication is about taking every element from each argument, if it is a list, at the same position and calling the function; the return value from each function call is aggregated and returned as a list. For example, for arguments `{x1, x2, ..., xn}` and `{y1, y2, ..., yn}`, when calling function `f()` with zip replication, it is equivalent to `{f(x1, y1}, f(x2, y2), ..., f(xn, yn)}`. As the lengths of input arguments could be different, zip replication could be
 
-    * Shortest zip replication: use the shorter length.
+    * Shortest zip replication: the number of replicated function call depends on the shortest length of arguments.
 
-    * Longest zip replication: use the longest length, the last element in the short input list will be repeated.
+    * Longest zip replication: the number of replicated function call depends on the longest length of arguments; the last element in the shorter argument will be repeated.
 
-	The default zip replication is the shortest zip replication; otherwise need to use replication guide
+	The default zip replication is the shortest zip replication; otherwise use replication guide to specify the longest approach.
 
-to specify the longest approach.
-
-* Cartesian replication: it is equivalent to nested loop in imperative block. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with cartesian replication and the cartesian indices are {0, 1}, which means the iteration over the first argument is the first loop, and the iteration over the second argument is the nested loop; it is equivalent to {f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}.
+* Cartesian replication: it is equivalent to nested loop in imperative block. For example, for input arguments `{x1, x2, ..., xn}` and `{y1, y2, ..., yn}`, when calling function `f()` with cartesian replication and the cartesian indices are `{0, 1}`, which means the iteration over the first argument is the first loop, and the iteration over the second argument is the nested loop; it is equivalent to `{f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}`.
 
 Replication guide is used to specify the order of cartesian replication indices; the lower replication guide, the outer loop. If two replication guides are the same value, zip replication will be applied.
 
@@ -840,7 +840,7 @@ Replication guide is used to specify the order of cartesian replication indices;
 ReplicationGuide = "<" number [“L”] “>” {“<” number [“L”] “>”}
 ```
 
-Only integer value is allowed in replication guide. Postfix "L" denotes if the replication is zip replication, then use the longest zip replication strategy. The number of replication guide specifies the nested level. For example, replication guide xs<1><2> indicates the argument should be at least of 2 dimensional and its nested level is 2; it could also be expressed by the following pseudo code:
+Only integer non-negative value is allowed in replication guide. Postfix "L" denotes if the replication is zip replication, then use the longest zip replication strategy. The number of replication guide specifies the nested level. For example, replication guide xs<1><2> indicates the argument should be at least of 2 dimensional and its nested level is 2; it could also be expressed by the following pseudo code:
 
 ```
 // xs<1><2>
@@ -889,50 +889,48 @@ r4 = add(xs<1>, ys<2>);
 r5 = add(xs<2>, ys<1>);
 ```
 
-Besides replication for explicit function call, replication and replication guide could also be applied to the following expressions:
+Besides normal function call, replication and replication guide could also be applied to the following expressions:
 
-1. Binary operators like +, -, *, / and so on. All binary operators in DesignScript can be viewed as a function which accepts two parameters, and unary operator can be viewed as a function which accepts one parameters. Therefore, replication will apply to expression "xs + ys" if “xs” and “ys” are lists.
+1. Binary operators like `+`, `-`, `*`, `/` and so on. All binary operators in DesignScript can be viewed as a function with two parameters, and unary operator can be viewed as a function which accepts one parameters. Therefore, replication will apply to expression `xs + ys` if `xs` and `ys` are lists.
 
 2. Range expression.
 
-3. Inline conditional expression in the form of "xs ? ys : zs" where “xs”, “ys” and “zs” are lists.
+3. Inline conditional expression in the form of `xs ? ys : zs` where `xs`, `ys` and `zs` are lists.
 
-4. Array indexing. For example, xs[ys] where ys is a list. Replication could apply to array indexing on the both sides of assignment expression. Note replication does not apply to multiple indices.
+4. Array indexing. For example, `xs[ys]` where `ys` is a list. Replication could apply to array indexing on the both sides of assignment expression. Note replication does not apply to multiple indices.
 
 ### Function dispatch rule for replication and replication guide
 
-Using zip replication or cartesian replication totally depends on the specified replication guide, the types of input arguments and the types of parameters. Because the input argument could be a heterogenous list, the implementation will compute which replication combination will generate the shortest type conversion distance.
+Using zip replication or cartesian replication totally depends on the specified replication guides in a function call, the types of input arguments and the types of parameters.
 
 Note if argument is jagged list, the replication result is undefined.
 
-Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments “a1, a2, ..., an”, function dispatch rule is:
+Formally, for a function `f(x1: t1, x2: t2, ..., xn: tn)` and input arguments `a1, a2, ..., an`, function dispatch rule is:
 
-1. Get a list of overloaded function f() with same number of parameters. These functions are candidates.
+1. If there are replication guides, they will be processed level by level from right to the left. For example, for function call `f(as<1><1>, bs, cs<1><2>, ds<2><1L>)`, there are two levels of replication guides.
 
-2. If there are replication guides, they will be processed level by level. For example, for function call f(as<1><1>, bs, cs<1><2>, ds<2><1L>), there are two levels of replication guides.
+2. For each level, sort replication guides in ascendant order. If replication guide is less than or equal to 0, this replication guide will be treated as a stub replication guide and is skipped.
 
-3. For each level, sort replication guides in ascendant order. If replication guide is less than or equal to 0, this replication guide will be skipped (it is a stub replication guide).
-
-	1. For each replication guide, if it appears in multiple arguments, zip replication applies. By default using shortest lacing. If any replication guide number has suffix "L", longest lacing applies.
+	1. For each replication guide, if it appears in multiple arguments, zip replication applies. By default using shortest lacing. If any replication guide number has suffix `L`, longest lacing applies.
 	2. Otherwise cartesian replication applies.
-	3. Repeat step b until all replication guides have been processed.
+	3. Repeat these two steps until all replication guides have been processed.
 
-4. Repeat step a until all replication levels have been processed.
+3. Repeat step a until all replication levels have been processed.
 
 5. For this example, following replications will be generated:
 
-	1. Zip replication on as, cs
-	2. Cartesian replication on ds
-	3. Zip replication on as, ds
-	4. Cartesian replication on ds
+	1. Zip replication on `as`, `cs`
+	2. Cartesian replication on `ds`
+	3. Zip replication on `as`, `ds`
+	4. Cartesian replication on `ds`
 
-3. After the processing of replication guide, the rank of each input argument is computed: r1 = rank(a1), r2 = rank(a2), ..., rn = rank(an); for each rank, update it to r = r - <number of replication guide on argument>. The final list {r1, r2, ..., rn} is called a reduction list, each reduction value represents a possible maximum nested loop on the corresponding argument.  
+6. After the processing of replication guide, the rank of each input argument is computed: r1 = rank(a1), r2 = rank(a2), ..., rn = rank(an); for each rank, update it to r = r - <number of replication guide on argument>. The final list {r1, r2, ..., rn} is called a reduction list, each reduction value represents a possible maximum nested loop on the corresponding argument.  
 
-4. Based on this reduction list, compute a combination of reduction list whose element value is less than or equal to the corresponding reduction value in base reduction list. For each reduction list {r1, r2, ..., rn}, iteratively do the following computation to generate replications:
+7. Based on this reduction list, compute a combination of reduction list whose element value is less than or equal to the corresponding reduction value in base reduction list. For each reduction list {r1, r2, ..., rn}, iteratively do the following computation to generate replications:
 
 	1. For any ri > 0, ri = ri - 1. If there are multiple reductions whose values are larger than or equal to 1, zip replication applies; otherwise cartesian replication applies.
 
-5. Combine the replications generated on step 3 and step 4, based on the input arguments and the signature of candidate functions, choose the best matched function and best replication strategy. During the process, if the type of parameter and the type of argument are different, the type distance score will be calculated.
+8. Combine the replications generated on step 3 and step 4, based on the input arguments and the signature of candidate functions, choose the best matched function and best replication strategy. During the process, if the type of parameter and the type of argument are different, the type distance score will be calculated.
 
 ## Built-in functions
 
