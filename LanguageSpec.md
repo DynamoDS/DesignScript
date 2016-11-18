@@ -369,6 +369,12 @@ b = a; // error: "a" is not defined yet
 a = 1;
 ```
 
+It is allowed to have type after variable definition, but that type doesn't define variable's type, it is for type conversion. Example:
+
+```
+x : int[] = 3;  // x = {3}
+```
+
 ### Scope
 
 The scope of a defined variable in DesignScript is limited to a block or a function where it is defined and is not visible in any nested imperative block or any other function.
