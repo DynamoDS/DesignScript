@@ -171,15 +171,15 @@ The type system in DesignScript is dynamic. DesignScript supports following prim
 </table>
 
 
-The default value of all other types is "null".
+If the language implementation supports FFI, the default value of all other imported FFI types is `null`.
 
 ### List
 
-In DesignScript, List is used to keep a collection of object. It is *immutable*, that is, we could use index to get value that stored in a list, but we should always call `Set(list, index, value)` to get a new list which stores new value at specified location.
+In DesignScript, List is used to keep a collection of object. It is *immutable*, that is, once it is defined, we can't add, delete or modify any element in the list, but we can call `Set(list, index, value)` to get a new list.
 
 #### Rank
 
-If a type has rank suffix, it declares a list. The number of "[]" specifies rank of this list. “[]..[]” specifies arbitrary rank. For example,
+If a parameter has rank suffix, it declares a list. The number of `[]` specifies rank of this list. `[]..[]` is for arbitrary rank. For example,
 
 ```
 number[]     // a number list whose rank is 1
@@ -198,20 +198,45 @@ Lists are dynamic. It is possible to index into any location of the list. If set
 ```
 x = {1, 2, 3};
 
-y = Set(x, 5, "foo")
-length = len(x);    // length == 6;
-v = y[5];           // v == "foo"
+y = Set(x, 5, "foo") // Set "foo" at position 5
+length = len(y);     // length == 6;
+v = y[5];            // v == "foo"
 ```
 
-When a dictionary is used in `in` clause of `for` loop, it returns all values associated with keys.
+When a dictionary is used in a function call, only values that indexed by non-negative integer key will be replicated over. Example:
+
+```
+def hello(x: string)
+{
+    return = "Hi, " + x;
+}
+xs = {0:"Tom", 1:"Jerry", "foo": "Dynamo"};
+r = hello(xs);  // r = {"Hi, Tom", "Hi, Jerry"}
+```
+
+There are two ways to iterate dictionary in `for` loop. Example:
+
+```
+xs = {0:"Tom", 1:"Jerry", "foo": "Dynamo"};
+[Imperative](xs)
+{
+    for k, v in xs {
+        ...
+    }
+
+    for v in xs {
+        ...
+    }
+}
+```
 
 ### Type conversion rules
 
-Following implicit type conversion rules specify the result of converting one type to another:
+Following type conversion rules specify the result of converting one type to the other:
 
 #### Non-list case
 
-"yes" means convertible, “no” means no convertible.
+"yes" means convertible, “no” means not convertible.
 
 <table>
   <tr>
@@ -320,14 +345,15 @@ Following implicit type conversion rules specify the result of converting one ty
 
 ## Variables
 
-A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Variable in global scope is immutable. That is, a variable is only allowed to be assigned once. For example,
+A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Variable in global scope is immutable. That is, a variable is only allowed to be assigned once. Example:
 
 ```
 a = 1;
 a = 2; // error: double assignment
 ```
 
-But a variable is mutable in imperative block. For example,
+But a variable is mutable in imperative block. Example:
+
 ```
 [Imperative]
 {
@@ -336,7 +362,7 @@ But a variable is mutable in imperative block. For example,
 }
 ```
 
-All variables should be defined before being used. For example,
+All variables should be defined before being used. Example:
 
 ```
 b = a; // error: "a" is not defined yet
@@ -347,10 +373,7 @@ a = 1;
 
 The scope of a defined variable in DesignScript is limited to a block or a function where it is defined and is not visible in any nested imperative block or any other function.
 
-To pass a variable to a nested imperative block, the variable should be explicitly captured in block's capture list. To pass a variable to a function, the variable should be passed as an argument. In either case, the variable will be copied to maintain its immutability.
-
-For example,
-
+To pass a variable to a nested imperative block, the variable should be explicitly captured in block's capture list. To pass a variable to a function, the variable should be passed as an argument. In either case, the variable will be copied to maintain its immutability. Example:
 
 ```
 x = 1;
@@ -395,13 +418,13 @@ StatementBlock =
     “{“ { Statement } “}”
 ```
 
-The return type of function is optional. By default the return type is var. If the return type is specified, type conversion may happen. It is not encouraged to specify return type unless it is necessary.
+The return type of function is optional. By default the return type is `var`. If the return type is specified, type conversion may happen. It is not encouraged to specify return type unless it is necessary.
 
 Function must be defined in top level block.
 
-For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that replication and replication guide will work as desired.
+For parameter, if its type is not specified, by default the type is `var`. The type of parameter should be carefully specified so that replication and replication guide would work as desired.
 
-For example:
+Example:
 
 ```
 def foo:var(x:number[]..[], y:number = 3)
@@ -412,18 +435,15 @@ def foo:var(x:number[]..[], y:number = 3)
 
 #### Default parameters
 
-Function declaration allows to have default parameter, but with one restriction: all default parameters should be the rightmost parameters.
-
-For example:
+Function declaration allows to have default arguments. For example:
 
 ```
-// it is valid because "y" and “z” are the rightmost default parameters
 def foo(x, y = 1, z = 2)
 {
     return = x + y + z;
 }
 
-// it is invalid because “x” is not the rightmost default parameter
+// Invalid
 def bar(x = 1, y, z = 2)
 {
     return = x + y + z;
