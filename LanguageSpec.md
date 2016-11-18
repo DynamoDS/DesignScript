@@ -345,7 +345,7 @@ a = 1;
 
 ### Scope
 
-The scope of a defined variable in DesignScript is limited to a block or a function where it is defined and is not extended to any nested block or any other function. A block could be the top level block or an imperative block.
+The scope of a defined variable in DesignScript is limited to a block or a function where it is defined and is not visible in any nested imperative block or any other function.
 
 To pass a variable to a nested imperative block, the variable should be explicitly captured in block's capture list. To pass a variable to a function, the variable should be passed as an argument. In either case, the variable will be copied to maintain its immutability.
 
@@ -365,6 +365,15 @@ def foo(x) {
 [Imperative](x) {
     x = 3;          // "x" is not the "x" defined in outer block.
                     // OK to change its value
+
+    if (true) {
+        y = x + 100;// OK, "x" is visible here
+        if (true) {
+            z = 200;
+        }
+    }
+
+    z = y;          // "y" is not defined
 }
 ```
 
