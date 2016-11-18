@@ -930,6 +930,7 @@ r = foo(xs<1L><1>, ys<1L>);
 // }
 //
 // And the final result is {{"1a", "1b"}, {"2a", "2b"}}
+```
 
 ### Function dispatch for replication
 
