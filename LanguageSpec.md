@@ -6,7 +6,7 @@ This is the specification for DesignScript programming language. DesignScript is
 
 The grammar in this specification is in Extended Backus-Naur Form (EBNF)
 
-This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The latter is implementation dependent. 
+This document doesn’t contain information about APIs and Foreign Function Interface (FFI). The latter is implementation dependent.
 
 ## Lexical elements
 
@@ -171,15 +171,15 @@ The type system in DesignScript is dynamic. DesignScript supports following prim
 </table>
 
 
-The default value of all other types is "null".
+If the language implementation supports FFI, the default value of all other imported FFI types is `null`.
 
 ### List
 
-In DesignScript, List is used to keep a collection of object. It is *immutable*, that is, we could use index to get value that stored in a list, but we should always call `Set(list, index, value)` to get a new list which stores new value at specified location.
+In DesignScript, List is used to keep a collection of object. It is *immutable*, that is, once it is defined, we can't add, delete or modify any element in the list, but we can call `Set(list, index, value)` to get a new list.
 
 #### Rank
 
-If a type has rank suffix, it declares a list. The number of "[]" specifies rank of this list. “[]..[]” specifies arbitrary rank. For example,
+If a parameter has rank suffix, it declares a list. The number of `[]` specifies rank of this list. `[]..[]` is for arbitrary rank. For example,
 
 ```
 number[]     // a number list whose rank is 1
@@ -187,30 +187,56 @@ number[][]   // a number list whose rank is 2
 number[]..[] // a number list with arbitrary rank
 ```
 
-The rank of type decides how do [replication ](#heading=h.f51u2x6ertfi)and [replication guide](#heading=h.f51u2x6ertfi) work in function dispatch.
+The rank of type decides how replication and replication guide work in function dispatch.
 
 #### List as dictionary
 
-List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key. For example:
+List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key.
+
 Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
 x = {1, 2, 3};
 
-y = Set(x, 5, "foo")
-length = len(x);    // length == 3;
-v = y[5];           // v == "foo"
+y = Set(x, 5, "foo") // Set "foo" at position 5
+length = len(y);     // length == 6;
+v = y[5];            // v == "foo"
 ```
 
-When a dictionary is used in "in" clause of “[for](#heading=h.wl3kjkvppdmk)” loop, it returns all values associated with keys.
+When a dictionary is used in a function call, only values that indexed by non-negative integer key will be replicated over. Example:
 
-### Type conversion rules(TBD)
+```
+def hello(x: string)
+{
+    return = "Hi, " + x;
+}
+xs = {0:"Tom", 1:"Jerry", "foo": "Dynamo"};
+r = hello(xs);  // r = {"Hi, Tom", "Hi, Jerry"}
+```
 
-Following implicit type conversion rules specify the result of converting one type to another:
+There are two ways to iterate dictionary in `for` loop. Example:
+
+```
+xs = {0:"Tom", 1:"Jerry", "foo": "Dynamo"};
+[Imperative](xs)
+{
+    for k, v in xs {
+        ...
+    }
+
+    for v in xs {
+        ...
+    }
+}
+```
+
+### Type conversion rules
+
+Following type conversion rules specify the result of converting one type to the other:
 
 #### Non-list case
 
-"yes" means convertible, “no” means no convertible.
+"yes" means convertible, “no” means not convertible.
 
 <table>
   <tr>
@@ -219,7 +245,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number</td>
     <td>bool</td>
     <td>string</td>
-    <td>ffi type</td>
+    <td>FFI type</td>
   </tr>
   <tr>
     <td>var</td>
@@ -233,7 +259,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number</td>
     <td>yes</td>
     <td>yes</td>
-    <td>x != 0 && x != NaN</td>
+    <td>no</td>
     <td>no</td>
     <td>no</td>
   </tr>
@@ -242,24 +268,24 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>yes</td>
     <td>no</td>
     <td>yes</td>
-    <td>yes</td>
+    <td>no</td>
     <td>no</td>
   </tr>
   <tr>
     <td>string</td>
     <td>yes</td>
     <td>no</td>
-    <td>x != ""</td>
+    <td>no</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>ffi type</td>
+    <td>FFI type</td>
     <td>yes</td>
     <td>no</td>
-    <td>x != ""</td>
-    <td>yes</td>
     <td>no</td>
+    <td>no</td>
+    <td>Covariant</td>
   </tr>
 </table>
 
@@ -273,7 +299,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number[]</td>
     <td>bool[]</td>
     <td>string[]</td>
-    <td>ffi type []</td>
+    <td>FFI type []</td>
   </tr>
   <tr>
     <td>var</td>
@@ -287,7 +313,7 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>number</td>
     <td>yes</td>
     <td>yes</td>
-    <td>x != 0 && x != NaN</td>
+    <td>no</td>
     <td>no</td>
     <td>no</td>
   </tr>
@@ -296,99 +322,64 @@ Following implicit type conversion rules specify the result of converting one ty
     <td>yes</td>
     <td>no</td>
     <td>yes</td>
-    <td>yes</td>
+    <td>no</td>
     <td>no</td>
   </tr>
   <tr>
     <td>string</td>
     <td>yes</td>
     <td>no</td>
-    <td>x != ""</td>
+    <td>no</td>
     <td>yes</td>
     <td>no</td>
   </tr>
   <tr>
-    <td>ffi type</td>
-    <td>na</td>
-    <td>na</td>
-    <td>na</td>
-    <td>na</td>
-    <td>na</td>
-  </tr>
-</table>
-
-#### Rank demotion
-
-<table>
-  <tr>
-    <td>From To</td>
-    <td>var</td>
-    <td>number</td>
-    <td>bool</td>
-    <td>string</td>
-    <td>ffi type</td>
-  </tr>
-  <tr>
-    <td>var[]</td>
+    <td>FFI type</td>
     <td>yes</td>
     <td>no</td>
     <td>no</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>number[]</td>
-    <td>yes</td>
-    <td>yes</td>
-    <td>x != 0</td>
-    <td>no</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>bool[]</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>yes</td>
-    <td>yes</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>string[]</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>x != ""</td>
-    <td>yes</td>
-    <td>no</td>
-  </tr>
-  <tr>
-    <td>ffi type[]</td>
-    <td>yes</td>
-    <td>no</td>
-    <td>x != null</td>
     <td>no</td>
     <td>Covariant</td>
-	</tr>
+  </tr>
 </table>
 
 ## Variables
 
-A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Unlike other languages, variable in DesignScript is immutable. That is, a variable is only allowed to be assigned once. For example,
+A variable is storage location for a value. As DesignScript is dynamic, it is free to assign any kind of value to a variable. Variable in global scope is immutable. That is, a variable is only allowed to be assigned once. Example:
 
 ```
 a = 1;
 a = 2; // error: double assignment
 ```
 
-All variables should be defined before being used. For example,
+But a variable is mutable in imperative block. Example:
+
+```
+[Imperative]
+{
+    x = 1;
+    x = 2; // OK
+}
+```
+
+All variables should be defined before being used. Example:
 
 ```
 b = a; // error: "a" is not defined yet
 a = 1;
 ```
 
+It is allowed to have type after variable definition, but that type doesn't define variable's type, it is for type conversion. Example:
+
+```
+x : int[] = 3;  // x = {3}
+```
+
 ### Scope
 
-Unlike block scope (NOTE:  https://en.wikipedia.org/wiki/Scope_(computer_science)#Block_scope) in most programming language, DesignScript only looks up variables defined in current block, and a block could be either function or language block.
+The scope of a defined variable in DesignScript is limited to a block or a function where it is defined and is not visible in any nested imperative block or any other function.
+
+To pass a variable to a nested imperative block, the variable should be explicitly captured in block's capture list. To pass a variable to a function, the variable should be passed as an argument. In either case, the variable will be copied to maintain its immutability. Example:
 
 ```
 x = 1;
@@ -397,13 +388,21 @@ y = 2;
 def foo(x) {
     z = 3;          // "z" is local variable
     return = x + y; // “x” is parameter
-                    // waring: “y” is not defined
+                    // error: “y” is not defined
 }
 
 [Imperative](x) {
-    x = 3;              // error: "x" is not allowed to be assigned twice
-    n = 4;              // the VM ensures “m” finally is 4
-    return = x + y + m; // error: "y" is not defined yet
+    x = 3;          // "x" is not the "x" defined in outer block.
+                    // OK to change its value
+
+    if (true) {
+        y = x + 100;// OK, "x" is visible here
+        if (true) {
+            z = 200;
+        }
+    }
+
+    z = y;          // "y" is not defined
 }
 ```
 
@@ -425,35 +424,32 @@ StatementBlock =
     “{“ { Statement } “}”
 ```
 
-The return type of function is optional. By default the return type is var. If the return type is specified, [type conversion](#heading=h.l30kv4fz02il) may happen. It is not encouraged to specify return type unless it is necessary.
+The return type of function is optional. By default the return type is `var`. If the return type is specified, type conversion may happen. It is not encouraged to specify return type unless it is necessary.
 
-Function must be defined in the global scope.
+Function must be defined in top level block.
 
-For parameters, if their types are not specified, by default is var. The type of parameters should be carefully specified so that [replication and replication guide](#heading=h.f51u2x6ertfi) will work as desired. For example, if a parameter’s type is var[]..[] ([arbitrary rank](#heading=h.x5qwed3vbjgx)), it means no replication on this parameter.
+For parameter, if its type is not specified, by default the type is `var`. The type of parameter should be carefully specified so that replication and replication guide would work as desired.
 
 Example:
 
 ```
 def foo:var(x:number[]..[], y:number = 3)
 {
-    return = x + y;
+    return x + y;
 }
 ```
 
 #### Default parameters
 
-Function declaration allows to have default parameter, but with one restriction: all default parameters should be the rightmost parameters.
-
-For example:
+Function declaration allows to have default arguments. For example:
 
 ```
-// it is valid because "y" and “z” are the rightmost default parameters
 def foo(x, y = 1, z = 2)
 {
     return = x + y + z;
 }
 
-// it is invalid because “x” is not the rightmost default parameter
+// Invalid
 def bar(x = 1, y, z = 2)
 {
     return = x + y + z;
@@ -462,20 +458,21 @@ def bar(x = 1, y, z = 2)
 
 #### Function overloads
 
-Like most dynamic languages, DesignScript doesn't supports function overload.
+DesignScript doesn't supports function overload.
 
 ## Expressions
 
 ### List creation expression
 
 ```
-ListCreationExpression = "{“ [Expression { “," Expression } ] “}”
+ListCreationExpression = "{“ [[Expression ":"] Expression { “," [Expression ":"] Expression } ] “}”
 ```
 
 List creation expression is to create a list. Example:
 
 ```
 x = {{1, 2, 3}, null, {true, false}, "DesignScript"};
+y = {0:"foo", 1:"bar", "qux":"quz"};
 ```
 
 ### Range expression
@@ -516,7 +513,7 @@ Example:
 1..5..#3;   // {1, 3, 5}
 ```
 
-Range expression  is handled specially for strings with single character. For example, following range expressions are valid as well:
+Range expression is handled specially for strings with single character. For example, following range expressions are valid as well:
 
 ```
 "a"..”e”;     // {“a”, “b”, “c”, “d”, “e”}
@@ -532,14 +529,12 @@ Range expression  is handled specially for strings with single character. For ex
 InlineConditionalExpression = Expression ? Expression : Expression;
 ```
 
-
 The first expression in inline conditional expression is condition expression whose type is bool. If it is true, the value of "?" clause will be returned; otherwise the value of “:” clause will be returned. The types of expressions for true and false conditions are not necessary to be the same. Example:
 
 ```
 x = 2;
 y = (x % 2 == 0) ? "foo" : 21;
 ```
-
 
 Inline conditional expressions replicate on all three expressions. Example:
 
@@ -551,41 +546,15 @@ z = {“ding”, “dang”, “dong”};
 r = x ? y : z;  // replicates, r = {“foo”, “dang”, “qux”}
 ```
 
-
-### Member access expression
-
-Member access expression is of the form
-
-```
-x.y.z
-```
-
-
-"y" and “z” could be properties, or member functions. If they are not accessible, null will be returned.
-
 ### List access expression
 
-List access expression is of the form
+List access expression is a right-value expression and is of the form
 
 ```
-a[x]
+r = a[x];
 ```
 
-"x" could be integer value or a key of any kind of types (if “a” is a [list](#heading=h.x6hkvoejht8r)).
-
-The following rules apply:
-
-* If it is just getting value, if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, for example the rank of “a” is 2 but the expression is a[x][y][z], there will be a “IndexOutOfRange” warning and null will be returned.
-
-* If it is assigning a value to the list,  if "a" is not a list, or the length of “a” is less than “x”, or the rank of “a” is less than the number of indexer, “a” will be extended or its dimension will promoted so that it is able to accommodate the value. For example,
-
-```
-a = 1;
-a[1] = 2;      // "a" will be promoted, a = {1, 2} now
-a[3] = 3;      // “a” will be extended, a = {1, 2, null, 3} now
-a[0][1] = 3;   // “a” will be promoted, a = {{1, 3}, 2, null, 3} now
-```
-
+where `x` could be any kind of value (if `a` is a list). It is not allowed to change the value of an element in a list in-place. Instead, use built-in function `Set()`.
 
 ### Operators
 
@@ -609,8 +578,7 @@ The following operators are supported in DesignScript:
 -         Negate
 ```
 
-
-All operators support replication. Except unary operator "!", all other operators also support replication guide. That is, the operands could be appended replication guides.
+All operators support replication. Except unary operator "!", all other binary operators support replication guide. That is, the operands could be appended replication guides.
 
 ```
 x = {1, 2, 3};
@@ -639,7 +607,7 @@ Precedence</td>
   </tr>
   <tr>
     <td>5</td>
-    <td>*, /, %</td>
+    <td>\*, /, %</td>
   </tr>
   <tr>
     <td>4</td>
@@ -711,26 +679,25 @@ Expression statements are expressions without assignment.
 Assignment = Expression "=" ((Expression “;”) | LanguageBlock)
 ```
 
-The left hand side of "=" should be assignable. Typically, it is [member access expression](#heading=h.rf6u7s9js69k) or [array access expression](#heading=h.7iw1e1npd4z) or variable. If the left hand side is a variable which hasn’t been defined before, the assignment statement will define this variable.
+The left hand side of "=" should be a variable.
 
 ### Flow statements
 
 Flow statements change the execution flow of the program. A flow statement is one of the followings:
 
-1. A [return ](#heading=h.xw8lqigquohf)statement.
+1. A `return` statement.
 
-2. A [break ](#heading=h.wf15sn8vv9wg)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
+2. A `break` statement in the block of `for` or `while` statement in imperative block.
 
-3. A [continue ](#heading=h.4yawi3g9ookh)statement in the block of [for](#heading=h.wl3kjkvppdmk) or [while ](#heading=h.55s0w9n1v8k2)statement in [imperative language block](#heading=h.271e3yqazhhe).
+3. A `continue` statement in the block of `for` or `while` statement in imperative block.
 
 ### Return statement
 
 ```
-ReturnStatement = "return" “=” Expression “;”
+ReturnStatement = "return" Expression “;”
 ```
 
-
-A "return" statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost[ imperative language block](#heading=h.271e3yqazhhe), and returns to the upper-level language block or function.
+A `return` statement terminates the execution of the innermost function and returns to its caller, or terminates the innermost imperative block, and returns to the upper-level language block or function.
 
 ### Break statement
 
@@ -738,8 +705,7 @@ A "return" statement terminates the execution of the innermost function and retu
 BreakStatement = "break" “;”
 ```
 
-
-A "break" statement terminates the execution of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
+A `break` statement terminates the execution of the innermost `for` loop or `while` loop.
 
 ### Continue statement
 
@@ -747,12 +713,11 @@ A "break" statement terminates the execution of the innermost “[for](#heading=
 ContinueStatement = "continue" “;”
 ```
 
-
-A "continue" statement begins the next iteration of the innermost “[for](#heading=h.wl3kjkvppdmk)” loop or “[while](#heading=h.55s0w9n1v8k2)” loop.
+A `continue` statement begins the next iteration of the innermost `for` loop or `while` loop.
 
 ### If statement
 
-"if" statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).  
+`if` statements specify the conditional execution of multiple branches based on the boolean value of each conditional expression. “if” statements are only valid in imperative block.
 
 ```
 IfStatement =
@@ -760,7 +725,6 @@ IfStatement =
     { “elseif” “(” Expression “)” StatementBlock }
     [ “else” StatementBlock ]
 ```
-
 
 For example:
 
@@ -782,12 +746,11 @@ else {
 
 ### While statement
 
-A "while" statement repeatedly executes a block until the condition becomes false. “while” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
+A `while` statement repeatedly executes a block until the condition becomes false. `while` statements are only valid in imperative block.
 
 ```
 WhileStatement = "while" “(” Expression “)” StatementBlock
 ```
-
 
 Example:
 
@@ -804,7 +767,7 @@ while (x < 10)
 
 ### For statements
 
-"for" iterates all values in “in” clause and assigns the value to the loop variable. The expression in “in” clause should return a list; if it is a singleton, it is a single statement evaluation. “for” statements are only valid in [imperative language block](#heading=h.271e3yqazhhe).
+`for` iterates all values in `in` clause and assigns the value to the loop variable. The expression in `in` clause should return a list; if it is a singleton, it is a single statement evaluation. `for` statements are only valid in imperative block.
 
 ```
 ForStatement = "for" “(” Identifier “in” Expression “)” StatementBlock
@@ -823,27 +786,21 @@ for (x in 1..10)
 
 ## Language blocks
 
-### Default associative language block
+### Top level block
 
-By default, all statements are in a default top [associative language block](#heading=h.4hx9oahduirh), so [associative update](#heading=h.1vv0i14ck6wu) is enabled by default.
+By default, all statements are in top level block. No return statement is allowed in top level block. The execution order of statements in top level block is *not* guaranteed to be sequential. Besides, the execution order of statements in function is not guaranteed to be sequential as well.
 
-Not like nested language block, there is no return statement in top language block: all statements will be executed sequentially to the last one.
+### Imperative block
 
-### Imperative language block
+Imperative block provides a convenient way to use imperative semantics. All statements in imperative block will be executed sequentially. Variables defined in imperative block is mutable. It is not allowed to nest an imperative block inside the other imperative block.
 
-Imperative language block provides a convenient way to use imperative semantics. Similar to nested associative language block, imperative language block executes all statements sequentially unless a statement is a [return statement](#heading=h.bhwa3rqti3pb) to return a value. Imperative language block can only be defined in the other associative language block, including the top associative language block.
-
-The key differences between associative language block and imperative language block are:
-
-* "if", “for” and “while” statements are only available in imperative language blocks. 
-
-Example:
+Examples of imperative block:
 
 ```
 x = 1;
 
-// define an imperative language block in the top associative language block
-y = [Imperative]
+// define an imperative block
+y = [Imperative](x)
 {
     if (x > 10) {
         return = 3;
@@ -858,9 +815,8 @@ y = [Imperative]
 
 def sum(x)
 {
-    // define an imperative language block inside a function, which is in global
-    // associative language block
-    return = [Imperative]
+    // define an imperative block inside a function
+    return = [Imperative](x)
     {
         s = 0;
         for (i in 1..x)
@@ -873,7 +829,7 @@ def sum(x)
 
 [Imperative]
 {
-    // invalid imperative language block
+    // invalid nested imperative block
     [Imperative]
     {
     }
@@ -884,41 +840,41 @@ def sum(x)
 
 ### Replication and replication guide
 
-Replication is a way to express iteration in associative language block. It applies to a function call when the rank of input arguments exceeds the rank of parameters. In other words, a function may be called multiple times in replication, and the return value from each function call will be aggregated and returned as a list.
+Replication is a way to repeatedly execute a function in DesignScript without using iteration statement like `for` or `while`, and the results returned from these function calls will be aggregated into a list so that multiple function calls behave like a single function call.
 
 There are two kinds of replication:
 
-* Zip replication: for multiple input lists, zip replication is about taking every element from each list at the same position and calling the function; the return value from each function call is aggregated and returned as a list. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with zip replication, it is equivalent to {f(x1, y1}, f(x2, y2), ..., f(xn, yn)}. As the lengths of input arguments could be different, zip replication could be
+* Zip replication: zip replication is about taking every element from each argument, if it is a list, at the same position and calling the function; the return value from each function call is aggregated and returned as a list. For example, for arguments `{x1, x2, ..., xn}` and `{y1, y2, ..., yn}`, when calling function `f()` with zip replication, it is equivalent to `{f(x1, y1}, f(x2, y2), ..., f(xn, yn)}`. As the lengths of input arguments could be different, zip replication could be
 
-    * Shortest zip replication: use the shorter length.
+    * Shortest zip replication: the number of replicated function call depends on the shortest length of arguments.
 
-    * Longest zip replication: use the longest length, the last element in the short input list will be repeated.
+    * Longest zip replication: the number of replicated function call depends on the longest length of arguments; the last element in the shorter argument will be repeated.
 
-	The default zip replication is the shortest zip replication; otherwise need to use replication guide
+	The default zip replication is the shortest zip replication; otherwise use replication guide to specify the longest approach.
 
-to specify the longest approach.
+* Cartesian replication: it is equivalent to nested loop in imperative block. For example, for input arguments `{x1, x2, ..., xn}` and `{y1, y2, ..., yn}`, when calling function `f()` with cartesian replication, it is equivalent to `{f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}` or `{f(x1, y1}, f(x2, y1), ..., f(xn, y1}, f(x1, y2), f(x2, y2), ..., f(xn, y2), ..., f(x1, yn), f(x2, yn), ..., f(xn, yn)}`, depending on which argument takes higher order.
 
-* Cartesian replication: it is equivalent to nested loop in imperative language. For example, for input arguments {x1, x2, ..., xn} and {y1, y2, ..., yn}, when calling function f() with cartesian replication and the cartesian indices are {0, 1}, which means the iteration over the first argument is the first loop, and the iteration over the second argument is the nested loop; it is equivalent to {f(x1, y1}, f(x1, y2), ..., f(x1, yn}, f(x2, y1), f(x2, y2), ..., f(x2, yn), ..., f(xn, y1), f(xn, y2), ..., f(xn, yn)}.
+There are two ways to trigger replication:
+1. Replication guide. Replication guide is a way to do replication explicitly, it will always be handled firstly in function call. For example, function call `foo(x<1><2>, y<3>)`.
 
-Replication guide is used to specify the order of cartesian replication indices; the lower replication guide, the outer loop. If two replication guides are the same value, zip replication will be applied.
+2. Any argument's rank is higher than the corresponding parameter's rank. For example, function signature is `foo(x:int, y:int)` and function call is `foo({1, 2}, {3, 4})`,
 
 ```
 ReplicationGuide = "<" number [“L”] “>” {“<” number [“L”] “>”}
 ```
 
-Only integer value is allowed in replication guide. Postfix "L" denotes if the replication is zip replication, then use the longest zip replication strategy. The number of replication guide specifies the nested level. For example, replication guide xs<1><2> indicates the argument should be at least of 2 dimensional and its nested level is 2; it could also be expressed by the following pseudo code:
+Only integer value is allowed in replication guide. Postfix "L" denotes longest zip replication strategy. The number of replication guide specifies the nested level. For example, replication guide `<1><2>` indicates the level is 2; it could also be expressed by the following pseudo code:
 
 ```
 // xs<1><2>
-for (ys in xs)
+for (x in xs)
 {
-    for (y in ys)
+    for (ix in x)
     {
         ...
     }
 }
 ```
-
 
 Example:
 
@@ -955,52 +911,94 @@ r4 = add(xs<1>, ys<2>);
 r5 = add(xs<2>, ys<1>);
 ```
 
-Besides replication for explicit function call, replication and replication guide could also be applied to the following expressions:
+Besides normal function call, replication and replication guide could also be applied to the following expressions:
 
-1. Binary operators like +, -, *, / and so on. All binary operators in DesignScript can be viewed as a function which accepts two parameters, and unary operator can be viewed as a function which accepts one parameters. Therefore, replication will apply to expression "xs + ys" if “xs” and “ys” are lists.
+1. Binary operators like `+`, `-`, `*`, `/` and so on. All binary operators in DesignScript can be viewed as a function with two parameters, and unary operator can be viewed as a function which accepts one parameters. Therefore, replication will apply to expression `xs + ys` if `xs` and `ys` are lists.
 
 2. Range expression.
 
-3. Inline conditional expression in the form of "xs ? ys : zs" where “xs”, “ys” and “zs” are lists.
+3. Inline conditional expression in the form of `xs ? ys : zs` where `xs`, `ys` and `zs` are lists.
 
-4. Array indexing. For example, xs[ys] where ys is a list. Replication could apply to array indexing on the both sides of assignment expression. Note replication does not apply to multiple indices.
+4. Array indexing. For example, `xs[ys]` where `ys` is a list. Replication could apply to array indexing on the both sides of assignment expression. Note replication does not apply to multiple indices.
 
-5. Member access expression. For example, xs.foo(ys) where xs and ys are lists. Replication guide could be applied to objects and arguments. If xs is a list, xs should be a homogeneous list, i.e., all elements in xs are of the same type.
+### Function dispatch for replication guide
 
-### Function dispatch rule for replication and replication guide
+Formally, for a function `f(x1: t1, x2: t2, ..., xn: tn)` and input arguments `a1, a2, ..., an`, if there are replication guides in the function call:
 
-Using zip replication or cartesian replication totally depends on the specified replication guide, the types of input arguments and the types of parameters. Because the input argument could be a heterogenous list, the implementation will compute which replication combination will generate the shortest type conversion distance.
+1. Replication guides will be processed level by level, from right to left. For each level, sort replication guides on this level in ascendant order. If a replication guide is less than or equal to 0, it is a stub replication guide and is skipped.
 
-Note if argument is jagged list, the replication result is undefined.
+	1. For each replication guide value, if it appears in multiple arguments, zip replication applies to these arguments and shortest lacing will be applied by default. If any replication guide has suffix `L`, longest lacing will be applied.
+	2. Otherwise cartesian replication will be applied.
+	3. Repeat these two steps until all replication guides have been processed.
 
-Formally, for a function "f(x1: t1, x2: t2, ..., xn: tn)" and input arguments “a1, a2, ..., an”, function dispatch rule is:
+2. Repeat last step until all replication levels have been processed.
 
-1. Get a list of overloaded function f() with same number of parameters. These functions are candidates.
+3. then convert these replications to iterations and call function without replication guide.
 
-2. If there are replication guides, they will be processed level by level. For example, for function call f(as<1><1>, bs, cs<1><2>, ds<2><1L>), there are two levels of replication guides.
+During replication, if the rank of argument is less than the rank of parameter, the argument will be promoted to higher rank. For example,
 
-3. For each level, sort replication guides in ascendant order. If replication guide is less than or equal to 0, this replication guide will be skipped (it is a stub replication guide).
+```
+def foo(x, y)
+{
+    return x + y;
+}
 
-	1. For each replication guide, if it appears in multiple arguments, zip replication applies. By default using shortest lacing. If any replication guide number has suffix "L", longest lacing applies.
-	2. Otherwise cartesian replication applies.
-	3. Repeat step b until all replication guides have been processed.
+xs = {1, 2};
+ys = {"a", "b"};
+r = foo(xs<1L><1>, ys<1L>);
+// Second level of replication guide is to do cartesian replication on xs firstly:
+// {
+//     foo(1<1L>, {"a", "b"}<1L>)
+//     foo(2<1L>, {"a", "b"}<1L>)
+// }
+//
+// Now the first level of replication guide is to do longest zip replication on both two function calls:
+// {
+//     {
+//         foo(1, "a"),
+//         foo(1, "b"),
+//     },
+//     {
+//         foo(2, "a"),
+//         foo(2, "b"),
+//     },
+// }
+//
+// And the final result is {{"1a", "1b"}, {"2a", "2b"}}
+```
 
-4. Repeat step a until all replication levels have been processed.
+### Function dispatch for replication
 
-5. For this example, following replications will be generated:
+After handling replication guide, for each function call, if any argument's rank is higher than the corresponding parameter's rank, the function call will be further replicated. The replication will be done recursively and longest zip replication will be applied.
 
-	1. Zip replication on as, cs
-	2. Cartesian replication on ds
-	3. Zip replication on as, ds
-	4. Cartesian replication on ds
+For example,
 
-3. After the processing of replication guide, the rank of each input argument is computed: r1 = rank(a1), r2 = rank(a2), ..., rn = rank(an); for each rank, update it to r = r - <number of replication guide on argument>. The final list {r1, r2, ..., rn} is called a reduction list, each reduction value represents a possible maximum nested loop on the corresponding argument.  
+```
+def foo(x, y)
+{
+    return x + y;
+}
 
-4. Based on this reduction list, compute a combination of reduction list whose element value is less than or equal to the corresponding reduction value in base reduction list. For each reduction list {r1, r2, ..., rn}, iteratively do the following computation to generate replications:
-
-	1. For any ri > 0, ri = ri - 1. If there are multiple reductions whose values are larger than or equal to 1, zip replication applies; otherwise cartesian replication applies.
-
-5. Combine the replications generated on step 3 and step 4, based on the input arguments and the signature of candidate functions, choose the best matched function and best replication strategy. During the process, if the type of parameter and the type of argument are different, the type distance score will be calculated.
+foo({1, {2, 3}, 4}, {"a", "b"})
+// It will be expanded to:
+// {
+//     foo(1, "a")
+//     foo({2, 3}, "b")
+//     foo(4, "b")
+// }
+//
+// The second call will be further expanded:
+// {
+//     foo(1, "a")
+//     {
+//         foo(2, "b"),
+//         foo(3, "b")
+//     }
+//     foo(4, "b")
+// }
+//
+// And the final result will be {"1a", {"2b", "3b"}, "4b"}
+```
 
 ## Built-in functions
 
