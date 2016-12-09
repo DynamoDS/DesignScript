@@ -69,14 +69,49 @@ break, continue, def, else, elseif, for, if, in, return, while, imperative
 
 ### Operators
 
-The following character sequences represent operators.
-
-```
-+    -    *    /   %
-==   <    >    <=  >=  !=
-&&   ||   !
-..   @    @@  
-```
+The following table shows all operators in order of precedence from highest to lowest
+<table>
+  <tr>
+	<td>Operators</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+	<td>-    !</td>
+	<td>Unary operators</td>
+  <tr>
+  <tr>
+	<td>*     /    %</td>
+	<td>Multiplicative operators</td>
+  <tr>
+  <tr>
+	<td>+    -</td>
+	<td>Additive operators</td>
+  <tr>
+  <tr>
+	<td><    >    <=    >=</td>
+	<td>Relational opeators</td>
+  <tr>
+  <tr>
+	<td>==    !=</td>
+	<td>Equality operators</td>
+  <tr>
+  <tr>
+	<td>&&</td>
+	<td>Conditional AND</td>
+  <tr>
+  <tr>
+	<td>||</td>
+	<td>Conditional OR</td>
+  <tr>
+  <tr>
+	<td>?:</td>
+	<td>Inline condition</td>
+  <tr>
+  <tr>
+	<td>..</td>
+	<td>Range expression</td>
+  <tr>
+</table>
 
 ### Bool literal
 
