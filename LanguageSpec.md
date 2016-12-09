@@ -493,7 +493,26 @@ def bar(x = 1, y, z = 2)
 
 #### Function overloads
 
-DesignScript doesn't supports function overload.
+DesignScript supports function overload, but the difference of two overloads shouldn't be ranks of parameters. For example,
+
+```
+def foo(x: number, y: bool)
+{
+  ...
+}
+
+// invalid overload, as only ranks of parameters are different 
+def foo(x: number[], y: bool[])
+{
+  ...
+}
+
+// valid overload
+def foo(x: bool, y: number)
+{
+  ...
+}
+```
 
 ## Expressions
 
