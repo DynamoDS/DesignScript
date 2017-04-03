@@ -1105,7 +1105,7 @@ a = {"foo" : 1};
 b = Set(a, "bar", 2); // {"foo" : 1, "bar" : 2}
 ```
 
-##### `Remove(table : var[]..[], index: int) : var[]..[]`
+##### `Remove(table : var[]..[], index: var) : var[]..[]`
 
 `Remove` removes the value at the specified key of the `table`. If the key is not present, returns the `table` unmodified.
 
