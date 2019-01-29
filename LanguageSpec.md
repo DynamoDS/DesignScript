@@ -1,4 +1,4 @@
-# DesignScript Language Specification (Draft)
+# DesignScript Language Specification
 
 ## Introduction
 
