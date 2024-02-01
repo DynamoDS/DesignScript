@@ -224,18 +224,16 @@ number[]..[] // a number list with arbitrary rank
 
 The rank of type decides how replication and replication guide work in function dispatch.
 
-#### List as dictionary
-
-List in DesignScript is just a special case of dictionary whose keys are continuous integers start from 0. We could use built-in function `Set()` to set value for any kind of key.
+#### List
 
 Lists are dynamic. It is possible to index into any location of the list. If setting value to an index which is beyond the length of list, list will be automatically expanded. For example,
 
 ```
-x = {1, 2, 3};
+x = [1, 2, 3];
 
-y = Set(x, 5, "foo") // Set "foo" at position 5
-length = len(y);     // length == 6;
-v = y[5];            // v == "foo"
+x[5] = "foo";	// x = [1 2, 3, null, null, "foo"]
+length = List.Count(y);     // length = 3;
+v = x[5];            // v == "foo"
 ```
 
 When a dictionary is used in a function call, only values that indexed by non-negative integer key will be replicated over. Example:
@@ -245,14 +243,14 @@ def hello(x: string)
 {
     return = "Hi, " + x;
 }
-xs = {0:"Tom", 1:"Jerry", "foo": "Dynamo"};
+xs = {"0" : "Tom", "1" : "Jerry", "foo" : "Dynamo"};
 r = hello(xs);  // r = {"Hi, Tom", "Hi, Jerry"}
 ```
 
 There are two ways to iterate dictionary in `for` loop. Example:
 
 ```
-xs = {0:"Tom", 1:"Jerry", "foo": "Dynamo"};
+xs = {"0" : "Tom", "1" : "Jerry", "foo" : "Dynamo"};
 [Imperative](xs)
 {
     for k, v in xs {
