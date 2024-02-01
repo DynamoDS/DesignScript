@@ -119,9 +119,9 @@ The following table shows all operators in order of precedence from highest to l
 true, false
 ```
 
-### Number literal
+### Integer and Double literals
 
-DesignScript doesn't have integer type. The range of number is defined by the range of double-precision floating-point.
+DesignScript has an integer and double type. The range of a double value is defined by the range of double-precision floating-point.
 
 ```
 digit = ‘0’..’9’
@@ -146,9 +146,9 @@ Example:
 
 ### String literal
 
-String literal represents a string constant. It is obtained by putting character sequence between double quote (").
+A string literal represents a string constant. It is obtained by putting character sequence between double quotes (").
 
-Any character can be in the sequence except newline and double quote ("). Backslash character in the sequence could be combined with the next character to become an escape character (NOTE:  https://en.wikipedia.org/wiki/Escape_character):
+Any character can be in the sequence except newline and double quote ("). The backslash character in the sequence could be combined with the next character to become an escape character (NOTE:  https://en.wikipedia.org/wiki/Escape_character):
 
 * \a
 * \b
@@ -163,14 +163,14 @@ Example:
 ```
 // "Hello        DesignScript
 // Language"
-“\”Hello\tDesignScript\nLanguage\””;
+"\"Hello\tDesignScript\nLanguage\"";
 ```
 
 ## Types
 
 ### Primitive Types
 
-The type system in DesignScript is dynamic. DesignScript supports following primitive types
+The type system in DesignScript is dynamic. DesignScript supports the following primitive types
 
 <table>
   <tr>
